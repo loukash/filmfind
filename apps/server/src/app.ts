@@ -5,7 +5,9 @@ import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import type { ApiErrorDTO } from '@filmfind/shared';
 import type { AppConfig } from './config.js';
+import { registerAuthHook } from './lib/auth.js';
 import { HttpError } from './lib/http.js';
+import { registerRateLimit, type RateLimitOptions } from './lib/rate-limit.js';
 import { registerRoutes } from './routes/index.js';
 
 const CONTENT_SECURITY_POLICY = [
@@ -20,12 +22,20 @@ const CONTENT_SECURITY_POLICY = [
   "frame-ancestors 'none'",
 ].join('; ');
 
+// HSTS сознательно не ставим: приложение ходит по HTTP в локальной сети,
+// заголовок Strict-Transport-Security заставил бы браузеры ходить только по
+// HTTPS и сломал доступ.
+const PERMISSIONS_POLICY = 'geolocation=(), microphone=(), camera=()';
+
 /**
  * Собирает приложение без регистрации роутов: логгер, заголовки безопасности,
  * обработчики ошибок, статика. Нужен тестам, которые регистрируют один плагин
  * изолированно.
  */
-export async function buildBaseApp(config: AppConfig): Promise<FastifyInstance> {
+export async function buildBaseApp(
+  config: AppConfig,
+  options: { rateLimit?: RateLimitOptions } = {},
+): Promise<FastifyInstance> {
   const app = Fastify({
     genReqId: () => randomUUID(),
     logger: {
@@ -50,12 +60,28 @@ export async function buildBaseApp(config: AppConfig): Promise<FastifyInstance> 
     },
   });
 
-  app.addHook('onSend', async (_request, reply, payload) => {
+  app.addHook('onSend', async (request, reply, payload) => {
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('Referrer-Policy', 'no-referrer');
     reply.header('Content-Security-Policy', CONTENT_SECURITY_POLICY);
+    reply.header('Permissions-Policy', PERMISSIONS_POLICY);
+    reply.header('Cross-Origin-Opener-Policy', 'same-origin');
+
+    // Данные API не должны кэшироваться браузером и промежуточными прокси.
+    // Исключение — /api/img: роут сам ставит публичный кэш постеров
+    // (public, max-age=86400), не перетираем его.
+    const pathname = request.url.split('?')[0] ?? request.url;
+    const isApiRoute = pathname === '/api' || pathname.startsWith('/api/');
+    if (isApiRoute && reply.getHeader('cache-control') === undefined) {
+      reply.header('Cache-Control', 'no-store');
+    }
     return payload;
   });
+
+  // Rate limit регистрируется до auth: тогда и запросы без токена (перебор
+  // пароля) ограничиваются по IP. Лимит, авторизация — до роутов.
+  registerRateLimit(app, options.rateLimit);
+  registerAuthHook(app, config.accessToken);
 
   let staticEnabled = false;
   if (config.isProduction && existsSync(config.webDistPath)) {
@@ -127,7 +153,9 @@ export async function buildBaseApp(config: AppConfig): Promise<FastifyInstance> 
     }
 
     // SPA-fallback: любой неизвестный путь отдаёт index.html.
-    void reply.sendFile('index.html');
+    // index.html нельзя кэшировать надолго: он ссылается на статику с хэшем
+    // в имени, и после обновления клиент должен получить свежие ссылки.
+    void reply.sendFile('index.html', { maxAge: 0, immutable: false });
   });
 
   return app;

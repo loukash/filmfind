@@ -8,6 +8,7 @@ import type {
   TitleType,
   TorrentDTO,
 } from '@filmfind/shared';
+import { getToken, notifyUnauthorized } from '../lib/token';
 
 /**
  * Тонкая обёртка над fetch. Никаких прямых обращений к TMDB/Prowlarr:
@@ -15,7 +16,7 @@ import type {
  */
 
 /** Ключ в localStorage с опциональным пользовательским токеном доступа. */
-export const TOKEN_STORAGE_KEY = 'filmfind.token';
+export { TOKEN_STORAGE_KEY } from '../lib/token';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -43,16 +44,6 @@ export class ApiError extends Error {
 
 export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
-}
-
-/** Пользовательский токен читается на каждый запрос: он может появиться без перезагрузки. */
-function readToken(): string | null {
-  try {
-    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
-  } catch {
-    // Приватный режим или запрет storage — работаем без токена.
-    return null;
-  }
 }
 
 interface RequestOptions {
@@ -85,8 +76,8 @@ async function readErrorPayload(response: Response): Promise<ApiErrorDTO> {
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = { accept: 'application/json' };
 
-  const token = readToken();
-  if (token !== null && token.length > 0) {
+  const token = getToken();
+  if (token !== null) {
     headers.authorization = `Bearer ${token}`;
   }
 
@@ -123,6 +114,13 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!response.ok) {
     const payload = await readErrorPayload(response);
+
+    // 401 — не просто ошибка экрана: сервер закрыт токеном доступа.
+    // Показываем диалог ввода, остальные запросы продолжат падать с тем же кодом.
+    if (response.status === 401) {
+      notifyUnauthorized();
+    }
+
     throw new ApiError(payload.code, payload.message, response.status, payload.details);
   }
 

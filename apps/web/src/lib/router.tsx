@@ -59,16 +59,43 @@ export function getLocation(): Location {
  *
  * `replace: true` не создаёт запись в истории — нужен для живого обновления
  * `?q=…`, чтобы набор запроса не забивал кнопку «назад» по символу.
+ *
+ * Глубина лежит в `history.state`: по ней `goBack` понимает, есть ли куда
+ * возвращаться внутри приложения. Прямая ссылка на карточку тайтла получает
+ * глубину 0 и уводит «Назад» на поиск, а не на чужой сайт из истории браузера.
  */
+const DEPTH_KEY = '__filmfindDepth';
+
+function readDepth(): number {
+  const state: unknown = window.history.state;
+  if (typeof state !== 'object' || state === null) return 0;
+
+  const depth = (state as Record<string, unknown>)[DEPTH_KEY];
+  return typeof depth === 'number' && Number.isSafeInteger(depth) && depth >= 0 ? depth : 0;
+}
+
 export function navigate(to: string, options: { replace?: boolean } = {}): void {
+  const depth = readDepth();
+  const state = { [DEPTH_KEY]: options.replace === true ? depth : depth + 1 };
+
   if (options.replace === true) {
-    window.history.replaceState(null, '', to);
+    window.history.replaceState(state, '', to);
   } else {
-    window.history.pushState(null, '', to);
+    window.history.pushState(state, '', to);
   }
 
   current = readLocation();
   emit();
+}
+
+/** Назад по истории приложения; если истории нет — на `fallback`. */
+export function goBack(fallback = '/'): void {
+  if (readDepth() > 0) {
+    window.history.back();
+    return;
+  }
+
+  navigate(fallback, { replace: true });
 }
 
 export function useLocation(): Location {

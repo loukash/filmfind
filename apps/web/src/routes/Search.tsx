@@ -1,22 +1,16 @@
 import type { SearchResultDTO, TitleSummaryDTO } from '@filmfind/shared';
 import { useQueries } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { isApiError, posterUrl } from '../api/client';
-import { searchQueryOptions, useHealth, useSearch, type SearchFilter } from '../api/queries';
-import { Link, navigate, searchPath, titlePath } from '../lib/router';
+import { isApiError } from '../api/client';
+import { searchQueryOptions, useSearch, type SearchFilter } from '../api/queries';
+import { AppHeader } from '../components/AppHeader';
+import { PosterImage } from '../components/PosterImage';
+import { navigate, searchPath, titlePath } from '../lib/router';
 import { clearHistory, pushHistory, readHistory } from '../lib/searchHistory';
 import { useDebouncedValue } from '../lib/useDebouncedValue';
+import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { useMediaQuery } from '../lib/useMediaQuery';
-import {
-  Button,
-  Chip,
-  EmptyState,
-  ErrorState,
-  IconButton,
-  Poster,
-  Skeleton,
-  StatusDot,
-} from '../ui';
+import { Button, Chip, EmptyState, ErrorState, IconButton, Skeleton } from '../ui';
 import { CloseIcon, SearchIcon } from '../ui/icons';
 
 const DEBOUNCE_MS = 350;
@@ -89,42 +83,9 @@ function readUrlState(): { q: string; page: number } {
   return { q: params.get('q') ?? '', page };
 }
 
-/** Индикатор состояния трёх внешних сервисов в шапке. */
-function HealthIndicator() {
-  const health = useHealth();
-
-  if (health.isError) {
-    return <StatusDot tone="danger" label="—/3" ariaLabel="Сервер недоступен" />;
-  }
-
-  const services = health.data?.services;
-  if (services === undefined) {
-    return <StatusDot tone="warn" label="…" ariaLabel="Проверяем состояние сервисов" />;
-  }
-
-  const list = [
-    { name: 'TMDB', status: services.tmdb },
-    { name: 'Prowlarr', status: services.prowlarr },
-    { name: 'Transmission', status: services.transmission },
-  ];
-  const okCount = list.filter((entry) => entry.status.ok).length;
-  const broken = list.filter((entry) => !entry.status.ok).map((entry) => entry.name);
-  const tone = okCount === list.length ? 'success' : 'warn';
-
-  return (
-    <StatusDot
-      tone={tone}
-      label={`${okCount}/3`}
-      ariaLabel={
-        broken.length === 0
-          ? 'Все сервисы доступны'
-          : `Доступно сервисов: ${okCount} из 3. Недоступны: ${broken.join(', ')}`
-      }
-    />
-  );
-}
-
 export function Search() {
+  useDocumentTitle('Поиск');
+
   const [query, setQuery] = useState(() => readUrlState().q);
   const [page, setPage] = useState(() => readUrlState().page);
   const [filter, setFilter] = useState<SearchFilter>('all');
@@ -233,18 +194,9 @@ export function Search() {
   return (
     <div className="min-h-dvh bg-bg">
       <div className="mx-auto w-full max-w-5xl px-4 pb-16 pt-5 md:px-6">
-        <header className="flex items-center justify-between gap-3">
-          <h1 className="text-xl font-bold tracking-tight text-fg md:text-2xl">FilmFind</h1>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/downloads"
-              className="inline-flex h-11 items-center rounded-chip px-3 text-sm font-medium text-muted transition-colors hover:text-fg"
-            >
-              Загрузки
-            </Link>
-            <HealthIndicator />
-          </div>
-        </header>
+        <AppHeader active="search" />
+
+        <h1 className="sr-only">Поиск фильмов и сериалов</h1>
 
         <div className="mt-4">
           <div className="relative">
@@ -389,7 +341,7 @@ export function Search() {
                       }`}
                       className="block w-full rounded-card text-left transition-transform duration-200 hover:-translate-y-0.5"
                     >
-                      <Poster title={item.title} year={item.year} src={posterUrl(item.posterPath)} />
+                      <PosterImage title={item.title} year={item.year} path={item.posterPath} />
                     </button>
                   </li>
                 ))}

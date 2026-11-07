@@ -7,17 +7,25 @@ Prowlarr и отправки выбранной раздачи в Transmission.
 запросы к TMDB / Prowlarr / Transmission, поэтому браузеру не нужен доступ к
 внутренним сервисам напрямую.
 
+Само приложение — монорепо на npm workspaces (`apps/server`, `apps/web`,
+`packages/shared`): общий контракт типов (`@filmfind/shared`), Fastify 5 +
+TypeScript с валидацией env, React 19 + Vite + Tailwind CSS v4 с
+дизайн-системой, multi-stage Docker-сборка.
+
 ## Возможности
 
-Сейчас готов этап 0 — каркас приложения:
-
-- монорепо на npm workspaces: `apps/server`, `apps/web`, `packages/shared`;
-- общий контракт типов и утилиты форматирования (`@filmfind/shared`);
-- Fastify 5 + TypeScript, валидация env, health-check всех сервисов;
-- React 19 + Vite + Tailwind CSS v4, дизайн-система и стайлгайд;
-- multi-stage Docker-сборка и `docker-compose.yml`.
-
-Поиск, раздачи и загрузки появятся в следующих этапах (см. «Статус реализации»).
+- Поиск фильмов и сериалов по TMDB с карточками, постерами и деталями тайтла
+  (год, жанры, описание, IMDb ID).
+- Поиск раздач по выбранному тайтлу через Prowlarr: список с качеством
+  (1080p, WEB-DL и т.п.), размером, сидерами и индексаторами.
+- Отправка раздачи в Transmission одним кликом (магнит, .torrent или
+  releaseId из локального индекса) и просмотр списка загрузок.
+- Прокси постеров через сервер (`/api/img/...`) — браузеру не нужен прямой
+  доступ к TMDB; всё внутреннее (магниты, ссылки .torrent, ключи API)
+  остаётся на сервере.
+- Безопасность: общий токен доступа (опционально), rate limit по IP,
+  строгие CSP и другие security-заголовки, маскирование секретов в логах.
+- Один контейнер на Docker Compose; история поиска — в localStorage браузера.
 
 ## Быстрый старт (Docker)
 
@@ -37,7 +45,81 @@ curl -s http://localhost:8080/api/health | jq
 `docker-compose.yml` вариант B (`extra_hosts`) и используйте адреса
 `http://host.docker.internal:9696` и `http://host.docker.internal:9091`.
 Если это контейнеры в общей docker-сети — включите вариант A (`networks`)
-и обращайтесь по именам контейнеров.
+и обращайтесь по именам контейнеров. Подробнее — в разделе
+«Настройка сети для Prowlarr и Transmission» ниже.
+
+## Токен доступа (APP_ACCESS_TOKEN)
+
+По умолчанию API открыт для всей локальной сети. Если приложением могут
+пользоваться не только вы, задайте общий токен:
+
+```bash
+# в .env
+APP_ACCESS_TOKEN=<openssl rand -hex 32>
+```
+
+После перезапуска контейнера все запросы `/api/*` требуют заголовок:
+
+```
+Authorization: Bearer <APP_ACCESS_TOKEN>
+```
+
+Без заголовка или с неверным токеном — `401 {"code": "UNAUTHORIZED"}`.
+Фронтенд хранит токен в `localStorage` (ключ `filmfind.token`) и добавляет
+его к запросам автоматически.
+
+**Исключение:** `/api/health` остаётся публичным даже с заданным токеном —
+он используется Docker healthcheck (`wget http://127.0.0.1:8080/api/health`)
+и индикатором статуса сервиса до ввода токена. Ответ health не содержит
+никаких секретов, только ok/degraded по каждому сервису.
+
+Проверка из терминала:
+
+```bash
+TOKEN=$(grep '^APP_ACCESS_TOKEN=' .env | cut -d= -f2)
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/releases?type=movie&q=dune
+```
+
+## Rate limit
+
+Ограничение по IP без внешних зависимостей (in-memory, окно 1 минута):
+
+| Точка | Лимит |
+|---|---|
+| `/api/titles/search`, `/api/releases` | 60/мин на IP |
+| `/api/transmission/add` | 20/мин на IP |
+| остальные `/api/*` (health, детали тайтла, постеры) | 300/мин на IP |
+
+При превышении — `429 {"code": "RATE_LIMITED"}` и заголовок `Retry-After`.
+На всех ответах `/api/*` есть `X-RateLimit-Limit` и `X-RateLimit-Remaining`.
+Счётчик ведётся по `request.ip`. За обратным прокси все клиенты
+приходят с одного IP — при необходимости включите в Fastify `trustProxy`,
+чтобы брался реальный адрес из `X-Forwarded-For`; для self-hosted за
+одним прокси это обычно не нужно.
+
+## Настройка сети для Prowlarr и Transmission
+
+Контейнеру filmfind нужно, чтобы адреса из `.env` (`PROWLARR_URL`,
+`TRANSMISSION_URL`) были доступны изнутри контейнера. Два варианта:
+
+**Вариант A — общая docker-сеть** (Prowlarr и Transmission тоже контейнеры):
+
+```bash
+docker network ls      # найдите сеть, в которой живут Prowlarr/Transmission
+                       # (docker inspect <имя-контейнера> | grep -A3 Networks)
+docker network create media   # если сети ещё нет
+```
+
+В `docker-compose.yml` раскомментируйте блок `networks: - media` для сервиса
+и в конце файла, при необходимости поправьте `DOCKER_NETWORK`. Адреса в
+`.env` — по именам контейнеров: `http://prowlarr:9696`, `http://transmission:9091`.
+
+**Вариант B — сервисы на хосте** (или в другой сети):
+
+Раскомментируйте `extra_hosts: - "host.docker.internal:host-gateway"`.
+Адреса в `.env`: `http://host.docker.internal:9696` и
+`http://host.docker.internal:9091`. На macOS/Windows работает из коробки,
+на Linux строка `host-gateway` уже добавлена.
 
 ## Локальная разработка
 
@@ -93,28 +175,75 @@ npm run dev -w @filmfind/web
 
 ### Transmission
 
-1. Включите удалённый доступ: Settings → Remote → «Allow remote access»
-   (RPC включён по умолчанию на порту 9091).
-2. Если включён whitelist, добавьте адрес, с которого приходит запрос:
-   для контейнера на хосте это обычно `172.17.*.*`, для общей docker-сети —
-   подсеть этой сети. Не отключайте whitelist без необходимости.
-3. При необходимости задайте `TRANSMISSION_USER` / `TRANSMISSION_PASSWORD`
-   (Settings → Remote → Authentication).
-4. `TRANSMISSION_URL` — база (`http://host.docker.internal:9091`) или полный
+Способ 1 — через веб-интерфейс Transmission: Settings → Remote →
+«Allow remote access» (RPC включён по умолчанию на порту 9091).
+
+Способ 2 — правкой `settings.json` Transmission (затем перезапуск
+контейнера Transmission: `docker restart transmission`):
+
+```json
+{
+  "rpc-enabled": true,
+  "rpc-username": "transmission",
+  "rpc-password": "{пароль — Transmission сам заменит на хэш при первом запуске}",
+  "rpc-whitelist-enabled": true,
+  "rpc-whitelist": ["127.0.0.1", "172.17.0.*", "172.18.0.*", "172.19.0.*", "172.20.0.*"]
+}
+```
+
+- `rpc-whitelist` — добавьте подсеть docker-сети, из которой приходит
+  контейнер filmfind: для сети по умолчанию это `172.17.0.*`, для
+  compose-сети — часто `172.18.*`–`172.20.*` (проверьте:
+  `docker network inspect <сеть> | grep Subnet`). Не отключайте whitelist
+  без необходимости.
+
+Дальше в `.env` FilmFind:
+
+1. `TRANSMISSION_URL` — база (`http://host.docker.internal:9091`) или полный
    RPC-адрес (`.../transmission/rpc`).
+2. `TRANSMISSION_USER` / `TRANSMISSION_PASSWORD` — если задали
+   `rpc-username` / `rpc-password`.
+3. Необязательно `TRANSMISSION_DOWNLOAD_DIR` — каталог загрузок.
 
 ## Безопасность
 
 > **Не публикуйте FilmFind в интернет без VPN или reverse proxy с HTTPS и
 > аутентификацией.** Приложение управляет загрузками и обращается к вашим
-> приватным сервисам; встроенной авторизации пока нет.
+> приватным сервисам, а ключи Prowlarr дают полный доступ к вашим
+> индексаторам и могут исчерпать лимиты или привлечь блокировки. Держите
+> FilmFind в локальной сети, за VPN (Tailscale/WireGuard) или за reverse
+> proxy (Caddy/nginx/Traefik) с TLS и Basic Auth/OIDC.
 
-Рекомендуется держать приложение в локальной сети или за VPN
-(Tailscale/WireGuard), а наружу выставлять только через reverse proxy
-(Caddy/nginx/Traefik) с TLS и Basic Auth/OIDC.
+Что уже встроено на уровне сервера:
 
-Дополнительно: секреты хранятся только в `.env`, который исключён из git;
-логгер Fastify маскирует заголовки авторизации, ключи и пароли.
+- **Токен доступа** — `APP_ACCESS_TOKEN` закрывает все `/api/*` Bearer-токеном
+  (см. раздел выше); сравнение constant-time, токен не попадает в логи.
+- **Rate limit** — 60/мин на поиск и раздачи, 20/мин на добавление в
+  Transmission, 300/мин на остальное; перебор токена тоже ограничен.
+- **CSP и заголовки** — `default-src 'self'`, `object-src 'none'`,
+  `base-uri 'none'`, `frame-ancestors 'none'`, `Permissions-Policy`
+  (геолокация/микрофон/камера запрещены), `Cross-Origin-Opener-Policy:
+  same-origin`, `X-Content-Type-Options: nosniff`. HSTS сознательно
+  не ставится: приложение работает по HTTP в локальной сети.
+- **Кэш** — ответы `/api/*` отдаются с `Cache-Control: no-store` (кроме
+  прокси постеров — там публичный кэш на день), статика раздаётся с
+  длинным кэшем по хэшированным именам Vite.
+- **Ошибки** — в прод-режиме (NODE_ENV=production) ответы 5xx не раскрывают
+  внутренние детали; секреты хранятся только в `.env` (исключён из git);
+  логгер Fastify маскирует заголовки авторизации, ключи и пароли.
+
+## Ограничения
+
+- **Нет базы данных.** Индекс раздач и кэши ответов TMDB/Prowlarr живут в
+  памяти процесса; после перезапуска контейнера всё обнуляется.
+- **Кэш в памяти** — LRU с ограничением по числу записей и TTL; не шарится
+  между репликами (приложение рассчитано на один инстанс).
+- **История поиска** хранится в `localStorage` браузера и не синхронизируется
+  между устройствами.
+- **Офлайн доступна только оболочка**: без сети к TMDB/Prowlarr/Transmission
+  интерфейс откроется, но поиск и раздачи работать не будут.
+- **За общим reverse proxy счётчик rate limit считает всех как один IP**
+  до включения `trustProxy` в Fastify.
 
 ## Статус реализации
 

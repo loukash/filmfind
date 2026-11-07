@@ -1,34 +1,10 @@
 import { useEffect } from 'react';
-import { Link, navigate, parseRoute, useLocation } from './lib/router';
+import { TokenDialog } from './components/TokenDialog';
+import { navigate, parseRoute, useLocation } from './lib/router';
+import { Downloads } from './routes/Downloads';
 import { Search } from './routes/Search';
 import { Styleguide } from './routes/Styleguide';
 import { Title } from './routes/Title';
-import { Card, EmptyState } from './ui';
-
-function Downloads() {
-  return (
-    <div className="min-h-dvh bg-bg">
-      <div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-5 md:px-6">
-        <Link
-          to="/"
-          className="inline-flex h-11 items-center gap-1.5 rounded-chip px-3 text-sm font-medium text-muted transition-colors hover:text-fg"
-        >
-          <span aria-hidden="true">←</span>
-          Назад
-        </Link>
-
-        <h1 className="mt-6 text-2xl font-bold tracking-tight text-fg">Загрузки</h1>
-
-        <Card className="mt-4">
-          <EmptyState
-            title="Раздел в разработке"
-            description="Список загрузок из Transmission появится в следующей волне."
-          />
-        </Card>
-      </div>
-    </div>
-  );
-}
 
 export default function App() {
   const location = useLocation();
@@ -42,16 +18,29 @@ export default function App() {
     }
   }, [route.name, location.pathname]);
 
-  switch (route.name) {
-    case 'styleguide':
-      return <Styleguide />;
-    case 'title':
-      return <Title key={`${route.type}-${route.id}`} type={route.type} id={route.id} />;
-    case 'downloads':
-      return <Downloads />;
-    case 'notFound':
-    case 'search':
-    default:
-      return <Search />;
+  // Стайлгайд — витрина дизайн-системы, без шапки и без доступа к API.
+  if (route.name === 'styleguide') {
+    return <Styleguide />;
   }
+
+  const screen = (() => {
+    switch (route.name) {
+      case 'title':
+        return <Title key={`${route.type}-${route.id}`} type={route.type} id={route.id} />;
+      case 'downloads':
+        return <Downloads />;
+      case 'notFound':
+      case 'search':
+      default:
+        return <Search />;
+    }
+  })();
+
+  return (
+    <>
+      {screen}
+      {/* Появляется только после настоящего 401 от /api/*. */}
+      <TokenDialog />
+    </>
+  );
 }
