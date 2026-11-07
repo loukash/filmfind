@@ -167,8 +167,8 @@ export function flattenCategories(
 
 /**
  * Приводит запись Prowlarr к внутреннему DTO.
- * `parseRelease` пока заглушка из @filmfind/shared — качество заполнится,
- * когда его реализуют в пакете.
+ * Качество извлекается парсером `parseRelease` из `@filmfind/shared`:
+ * неизвестные поля остаются `undefined`, исключений парсер не бросает.
  */
 export function normalizeProwlarrRelease(raw: ProwlarrReleaseResource): InternalRelease {
   const title = optionalString(raw.title) ?? '';
