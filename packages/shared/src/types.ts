@@ -82,6 +82,13 @@ export interface TorrentDTO {
   downloadDir?: string;
 }
 
+/** Результат `POST /api/transmission/add`. */
+export interface AddTorrentResultDTO {
+  result: 'added' | 'duplicate';
+  id?: number;
+  name?: string;
+}
+
 export interface ServiceStatus {
   ok: boolean;
   configured: boolean;

@@ -1,0 +1,43 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 512 512"
+  role="img"
+  aria-label="FilmFind"
+>
+  <!--
+    Марка приложения: лупа поверх кадра плёнки.
+    Фон залит целиком (без скруглений) — так иконка корректно обрезается
+    маской Android в режиме maskable, а содержимое держится в безопасной зоне.
+  -->
+  <rect width="512" height="512" fill="#0A0A0C" />
+
+  <!-- Линза -->
+  <circle cx="232" cy="226" r="112" fill="#14141A" stroke="#6D5EF8" stroke-width="30" />
+
+  <!-- Кадр плёнки внутри линзы -->
+  <rect
+    x="184"
+    y="178"
+    width="96"
+    height="96"
+    rx="10"
+    fill="none"
+    stroke="#6D5EF8"
+    stroke-width="12"
+  />
+  <g fill="#6D5EF8">
+    <rect x="196" y="190" width="12" height="12" rx="3" />
+    <rect x="196" y="250" width="12" height="12" rx="3" />
+    <rect x="256" y="190" width="12" height="12" rx="3" />
+    <rect x="256" y="250" width="12" height="12" rx="3" />
+  </g>
+  <path d="M214 214h36v24h-36z" fill="#6D5EF8" opacity="0.85" />
+
+  <!-- Ручка лупы -->
+  <path
+    d="M316 310l62 62"
+    stroke="#6D5EF8"
+    stroke-width="30"
+    stroke-linecap="round"
+  />
+</svg>

@@ -4,6 +4,7 @@ import { registerHealthRoute } from './health.js';
 import { imgRoutes } from './img.js';
 import { releasesRoutes } from './releases.js';
 import { titlesRoutes } from './titles.js';
+import { transmissionRoutes } from './transmission.js';
 
 export async function registerRoutes(app: FastifyInstance, config: AppConfig): Promise<void> {
   registerHealthRoute(app, config);
@@ -11,7 +12,5 @@ export async function registerRoutes(app: FastifyInstance, config: AppConfig): P
   await app.register(titlesRoutes, { config });
   await app.register(releasesRoutes, { config });
   await app.register(imgRoutes);
-
-  // Волна 2 добавит здесь:
-  //   /api/transmission/torrents, /api/transmission/add — Transmission
+  await app.register(transmissionRoutes, { config });
 }

@@ -12,6 +12,7 @@ import type {
 } from '../clients/prowlarr.js';
 import type { TmdbClient } from '../clients/tmdb.js';
 import { LruCache } from './lru.js';
+import { rememberReleases } from './release-store.js';
 
 /** Категории Newznab, которые использует сервис. */
 export const NEWZNAB_MOVIES = 2000;
@@ -340,6 +341,7 @@ export function createReleasesService(deps: ReleasesServiceDeps): ReleasesServic
       const filtered = filterReleases(collected, query, title);
       const sorted = sortReleases(dedupeReleases(filtered));
       const internal = sorted.slice(0, limit);
+      rememberReleases(internal);
 
       const result: ReleasesResult = {
         items: internal.map(toPublicRelease),
