@@ -1,0 +1,27 @@
+{
+  "name": "filmfind",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build -w @filmfind/shared && npm run build --workspaces --if-present",
+    "pretest": "npm run build -w @filmfind/shared",
+    "test": "npm run test --workspaces --if-present",
+    "dev": "npm run build -w @filmfind/shared && concurrently -n server,web -c cyan,magenta \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "npm run dev -w @filmfind/server",
+    "dev:web": "npm run dev -w @filmfind/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3"
+  }
+}

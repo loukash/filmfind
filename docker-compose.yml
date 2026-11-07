@@ -1,0 +1,42 @@
+services:
+  filmfind:
+    build: .
+    image: filmfind:latest
+    container_name: filmfind
+    env_file: .env
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # Сеть — выберите один из вариантов ниже.
+    #
+    # Вариант A. Prowlarr и Transmission — контейнеры в общей docker-сети.
+    # Подключите filmfind к той же внешней сети, что и они, и обращайтесь
+    # к сервисам по именам контейнеров (например, http://prowlarr:9696).
+    #
+    # networks:
+    #   - media
+
+    # Вариант B. Prowlarr и Transmission запущены на хосте (или в другой сети).
+    # Раскомментируйте extra_hosts и указывайте в .env адреса вида
+    # http://host.docker.internal:9696 и http://host.docker.internal:9091.
+    # На Linux нужен host-gateway (уже указан), на macOS/Windows работает из коробки.
+    #
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+# Вариант A: общая внешняя сеть. Имя задаётся переменной DOCKER_NETWORK
+# (по умолчанию media). Сеть должна быть создана заранее:
+#   docker network create media
+#
+# networks:
+#   media:
+#     external: true
+#     name: ${DOCKER_NETWORK:-media}
