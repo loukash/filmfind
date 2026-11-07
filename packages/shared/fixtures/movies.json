@@ -1,0 +1,174 @@
+[
+  {
+    "title": "Fight.Club.1999.1080p.BluRay.x264.DTS-HD.MA.5.1-FGT",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264", "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "The.Matrix.1999.2160p.UHD.BluRay.HEVC.HDR10+.TrueHD.7.1.Atmos-FGT",
+    "expect": { "resolution": "2160p", "source": "BluRay", "codec": "H.265", "hdr": ["HDR10+"], "audio": { "format": "TrueHD", "channels": "7.1", "atmos": true } }
+  },
+  {
+    "title": "Inception.2010.BluRay.Remux.2160p.HEVC.HDR10+.DTS-HD.MA.5.1-WiKi",
+    "expect": { "resolution": "2160p", "source": "BDRemux", "codec": "H.265", "hdr": ["HDR10+"], "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "Rush 2013 1080p BluRay REMUX AVC DTS-HD MA 5.1-EPSiLON",
+    "expect": { "resolution": "1080p", "source": "BDRemux", "codec": "H.264", "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "Blade Runner 2049 2017 Remux 2160p HEVC HDR10 DTS-HD MA 5.1-FraMeSToR",
+    "expect": { "resolution": "2160p", "source": "Remux", "codec": "H.265", "hdr": ["HDR10"], "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "Avatar.The.Way.of.Water.2022.2160p.WEB-DL.DDP5.1.Atmos.HDR10+.H.265-NOSNHITS",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "hdr": ["HDR10+"], "audio": { "format": "DDP", "channels": "5.1", "atmos": true } }
+  },
+  {
+    "title": "Tenet.2020.1080p.WEB-DL.DDP5.1.H.264-EVO",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DDP", "channels": "5.1" } }
+  },
+  {
+    "title": "Parasite.2019.KOR.1080p.WEB-DL.AAC2.0.H.264-EVO",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "AAC", "channels": "2.0" } }
+  },
+  {
+    "title": "The.Dark.Knight.2008.720p.BluRay.x264-AMIABLE",
+    "expect": { "resolution": "720p", "source": "BluRay", "codec": "H.264" }
+  },
+  {
+    "title": "Se7en.1995.1080p.BluRay.X264.DTS-WiKi",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264", "audio": { "format": "DTS" } }
+  },
+  {
+    "title": "Alien.Director.Cut.1979.DVDRip.XviD.AC3.5.1-iKA",
+    "expect": { "source": "DVDRip", "codec": "XviD", "audio": { "format": "DD", "channels": "5.1" } }
+  },
+  {
+    "title": "Heat.1995.PROPER.1080p.BDRip.x264.aac-ETRG",
+    "expect": { "resolution": "1080p", "source": "BDRip", "codec": "H.264", "audio": { "format": "AAC" } }
+  },
+  {
+    "title": "Spotlight.2015.2160p.HLG.WEB-DL.HEVC.DDP5.1",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "hdr": ["HLG"], "audio": { "format": "DDP", "channels": "5.1" } }
+  },
+  {
+    "title": "Spider-Man.Across.the.Spider-Verse.2023.2160p.WEB-DL.DDP5.1.Atmos.H.265",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "audio": { "format": "DDP", "channels": "5.1", "atmos": true } }
+  },
+  {
+    "title": "Interstellar.2014.1080p.HDTV.x264-ETRG",
+    "expect": { "resolution": "1080p", "source": "HDTV", "codec": "H.264" }
+  },
+  {
+    "title": "Gladiator.2000.1080p.BluRay.x265.10bit-GPMUX",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.265" }
+  },
+  {
+    "title": "Titanic.1997.2160p.UHD.BluRay.x265.DTS-HD.MA.5.1.HDR",
+    "expect": { "resolution": "2160p", "source": "BluRay", "codec": "H.265", "hdr": ["HDR10"], "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "Casablanca.1942.720p.WEBRip.x264-YTS",
+    "expect": { "resolution": "720p", "source": "WEBRip", "codec": "H.264" }
+  },
+  {
+    "title": "The.Godfather.Part.II.1974.1080p.BluRay.X264-AMIABLE",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264" }
+  },
+  {
+    "title": "Toy.Story.1995.BluRay.Remux.1080p.AVC.DD.5.1-BMF",
+    "expect": { "resolution": "1080p", "source": "BDRemux", "codec": "H.264", "audio": { "format": "DD", "channels": "5.1" } }
+  },
+  {
+    "title": "Terminator.2.Judgment.Day.1991.2160p.BluRay.x265.10bit.HDR.DTS-X.7.1-SWTYBZ",
+    "expect": { "resolution": "2160p", "source": "BluRay", "codec": "H.265", "hdr": ["HDR10"], "audio": { "format": "DTS-X", "channels": "7.1" } }
+  },
+  {
+    "title": "Top.Gun.Maverick.2022.2160p.WEB-DL.DoVi.HDR10.HEVC.DDP5.1.Atmos",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "hdr": ["Dolby Vision", "HDR10"], "audio": { "format": "DDP", "channels": "5.1", "atmos": true } }
+  },
+  {
+    "title": "Oppenheimer.2023.2160p.WEB-DL.TrueHD.Atmos.7.1.H.265.DV",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "hdr": ["Dolby Vision"], "audio": { "format": "TrueHD", "channels": "7.1", "atmos": true } }
+  },
+  {
+    "title": "Dune.Part.Two.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR10+.H.265",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "hdr": ["Dolby Vision", "HDR10+"], "audio": { "format": "DDP", "channels": "5.1", "atmos": true } }
+  },
+  {
+    "title": "The.Shawshank.Redemption.1994.1080p.BluRay.H264.AAC-RARBG",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264", "audio": { "format": "AAC" } }
+  },
+  {
+    "title": "Joker.Folie.a.Deux.2024.CAM.x264-POOLER",
+    "expect": { "source": "CAM", "codec": "H.264" }
+  },
+  {
+    "title": "Black.Adam.2022.720p.TC.XviD-JUSTICE",
+    "expect": { "resolution": "720p", "source": "TC", "codec": "XviD" }
+  },
+  {
+    "title": "Morbius.2022.1080p.HDTS.x264-SCREAM",
+    "expect": { "resolution": "1080p", "source": "TS", "codec": "H.264" }
+  },
+  {
+    "title": "Madame.Web.2024.1080p.TS.XviD.AC3.5.1-MHF",
+    "expect": { "resolution": "1080p", "source": "TS", "codec": "XviD", "audio": { "format": "DD", "channels": "5.1" } }
+  },
+  {
+    "title": "Coco.2017.4K.2160p.WEB-DL.DDP2.0.H.264",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DDP", "channels": "2.0" } }
+  },
+  {
+    "title": "Ponyo.2008.720p.WEB-DL.DDP5.1.H.264.HDR",
+    "expect": { "resolution": "720p", "source": "WEB-DL", "codec": "H.264", "hdr": ["HDR10"], "audio": { "format": "DDP", "channels": "5.1" } }
+  },
+  {
+    "title": "Dark.Phoenix.2019.720p.BluRay.x264.TrueHD.7.1.Atmos",
+    "expect": { "resolution": "720p", "source": "BluRay", "codec": "H.264", "audio": { "format": "TrueHD", "channels": "7.1", "atmos": true } }
+  },
+  {
+    "title": "The.Life.Aquatic.2004.1080p.BluRay.x265.DTS-HD.MA.5.1",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.265", "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "Amelie.2001.576p.DVDRip.XviD-VH-PROD",
+    "expect": { "resolution": "576p", "source": "DVDRip", "codec": "XviD" }
+  },
+  {
+    "title": "Monty.Python.and.the.Holy.Grail.1975.480p.DVDRip.XviD.AC3-DEViSE",
+    "expect": { "resolution": "480p", "source": "DVDRip", "codec": "XviD", "audio": { "format": "DD" } }
+  },
+  {
+    "title": "Roman.Holiday.1953.480p.WEB-DL.x264-ETRG",
+    "expect": { "resolution": "480p", "source": "WEB-DL", "codec": "H.264" }
+  },
+  {
+    "title": "Ready.Player.One.2018.2160p.Dolby.Vision.HDR10.HEVC.BluRay",
+    "expect": { "resolution": "2160p", "source": "BluRay", "codec": "H.265", "hdr": ["Dolby Vision", "HDR10"] }
+  },
+  {
+    "title": "Wall-E.2008.2160p.WEB-DL.DTS.5.1.x264-D-Z0N3",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DTS", "channels": "5.1" } }
+  },
+  {
+    "title": "Decade.1985.1080p.x265.DTSHD.MA.5.1.mkv",
+    "expect": { "resolution": "1080p", "codec": "H.265", "audio": { "format": "DTS-HD", "channels": "5.1" } }
+  },
+  {
+    "title": "The.Nun.II.2023.[1080p].[WEB-DL].[HEVC].[10bit].[DDP5.1+Atmos].[Rus]-GoldenMiner",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.265", "audio": { "format": "DDP", "channels": "5.1", "atmos": true } }
+  },
+  {
+    "title": "Moonlight.2016.1080p.BluRay.x264.FLAC.2.0-COCAIN",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264", "audio": { "format": "FLAC", "channels": "2.0" } }
+  },
+  {
+    "title": "Radiohead.AMSP.Concert.2018.1080p.WEB-DL.Opus.5.1.x264",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "Opus", "channels": "5.1" } }
+  },
+  {
+    "title": "DJ.Sets.Collection.2012.1080p.WEB-DL.x264.FLAC",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "FLAC" } }
+  }
+]

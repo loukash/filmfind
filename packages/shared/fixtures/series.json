@@ -1,0 +1,78 @@
+[
+  {
+    "title": "Stranger.Things.S01E01-E05.720p.WEB-DL.DDP5.1.H.264",
+    "expect": { "resolution": "720p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DDP", "channels": "5.1" }, "season": 1, "episodes": [1, 2, 3, 4, 5] }
+  },
+  {
+    "title": "The.Last.of.Us.S02E05.2160p.WEB-DL.DDP5.1.Atmos.H.265",
+    "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "audio": { "format": "DDP", "channels": "5.1", "atmos": true }, "season": 2, "episodes": [5] }
+  },
+  {
+    "title": "House.of.the.Dragon.S01.1080p.BluRay.Remux.AVC.DTS-HD.MA.5.1",
+    "expect": { "resolution": "1080p", "source": "BDRemux", "codec": "H.264", "audio": { "format": "DTS-HD", "channels": "5.1" }, "season": 1 }
+  },
+  {
+    "title": "Тед Лассо S03 1080p WEB-DL DDP 5.1 Дубляж",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "audio": { "format": "DDP", "channels": "5.1" }, "season": 3, "voice": ["Дубляж"] }
+  },
+  {
+    "title": "Три кота 1 сезон 8 серия 720p WEBRip MVO",
+    "expect": { "resolution": "720p", "source": "WEBRip", "season": 1, "episodes": [8], "voice": ["MVO"] }
+  },
+  {
+    "title": "Доктор Кто 2005 4 сезон 1-8 серия DVDRip",
+    "expect": { "source": "DVDRip", "season": 4, "episodes": [1, 2, 3, 4, 5, 6, 7, 8] }
+  },
+  {
+    "title": "Ход королевы S01E01-E09 1080p Netflix WEB-DL DDP5.1 H.265",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.265", "audio": { "format": "DDP", "channels": "5.1" }, "season": 1, "episodes": [1, 2, 3, 4, 5, 6, 7, 8, 9] }
+  },
+  {
+    "title": "better.call.saul.s05e10.1080p.bluray.x264-LOWDIM",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264", "season": 5, "episodes": [10] }
+  },
+  {
+    "title": "Wednesday.2022.S01.COMPLETE.1080p.NF.WEB-DL.DDP5.1.Atmos.H.264-NPMS",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DDP", "channels": "5.1", "atmos": true }, "season": 1 }
+  },
+  {
+    "title": "Уэнсдэй 2 сезон 1-4 серия WEB-DL 1080p",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "season": 2, "episodes": [1, 2, 3, 4] }
+  },
+  {
+    "title": "South.Park.S26E03.720p.AMZN.WEB-DL.DDP2.0.H.264",
+    "expect": { "resolution": "720p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DDP", "channels": "2.0" }, "season": 26, "episodes": [3] }
+  },
+  {
+    "title": "The.Simpsons.S26E03.720p.HDTV.x264-KILLERS",
+    "expect": { "resolution": "720p", "source": "HDTV", "codec": "H.264", "season": 26, "episodes": [3] }
+  },
+  {
+    "title": "futurama.s2e10.480p.dvdrip.xvid",
+    "expect": { "resolution": "480p", "source": "DVDRip", "codec": "XviD", "season": 2, "episodes": [10] }
+  },
+  {
+    "title": "Rick.and.Morty.S05E01-E03.1080p.WEBRip.x265",
+    "expect": { "resolution": "1080p", "source": "WEBRip", "codec": "H.265", "season": 5, "episodes": [1, 2, 3] }
+  },
+  {
+    "title": "Кухня 6 сезон 1-18 серия HDTVRip",
+    "expect": { "source": "HDTV", "season": 6, "episodes": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] }
+  },
+  {
+    "title": "Game.of.Thrones.S06.COMPLETE.1080p.BluRay.x265.HEVC",
+    "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.265", "season": 6 }
+  },
+  {
+    "title": "Мега.Шоу.S01E01-200.WEB-DL.x264",
+    "expect": { "source": "WEB-DL", "codec": "H.264", "season": 1, "episodes": [1, 200] }
+  },
+  {
+    "title": "Family.Guy.S22E05.1080p.WEB-DL.DDP2.0.H.264-NTb",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "codec": "H.264", "audio": { "format": "DDP", "channels": "2.0" }, "season": 22, "episodes": [5] }
+  },
+  {
+    "title": "Полицейский с Рублевки 2 сезон 1-18 серия 3 сезон 5 серия WEB-DL 1080p",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "season": 2, "episodes": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] }
+  }
+]

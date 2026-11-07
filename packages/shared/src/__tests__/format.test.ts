@@ -40,7 +40,8 @@ describe('formatEta', () => {
 });
 
 describe('parseRelease', () => {
-  it('пока возвращает пустой объект (заглушка волны 0)', () => {
-    expect(parseRelease('Dune.Part.Two.2024.2160p.WEB-DL')).toEqual({});
+  it('не бросает исключений и возвращает объект на простом названии', () => {
+    expect(() => parseRelease('Dune.Part.Two.2024.2160p.WEB-DL')).not.toThrow();
+    expect(parseRelease('Dune.Part.Two.2024.2160p.WEB-DL')).toBeInstanceOf(Object);
   });
 });

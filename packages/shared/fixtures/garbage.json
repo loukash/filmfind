@@ -1,0 +1,15 @@
+[
+  { "title": "", "expect": {} },
+  { "title": "random text без качества 🎬🍿", "expect": {} },
+  { "title": "Test.Clip.7202160p.mkv", "expect": {} },
+  { "title": "Movie.2020.480i.webrip.x265", "expect": { "source": "WEBRip", "codec": "H.265" } },
+  { "title": "Studio.AVCHD.demo.disc.2160i", "expect": {} },
+  { "title": "BluRay.Samples.trash.mkv", "expect": { "source": "BluRay" } },
+  { "title": "🍿🍿🍿 Episode.1.2023", "expect": {} },
+  { "title": "👁️ [1080p] 😎", "expect": { "resolution": "1080p" } },
+  { "title": "jacuzzi", "expect": {} },
+  { "title": "~~%%###***&&&", "expect": {} },
+  { "title": "random_notes_file_1999_0832", "expect": {} },
+  { "title": "super.clip.2160p.final", "expect": { "resolution": "2160p" } },
+  { "title": "0", "expect": {} }
+]

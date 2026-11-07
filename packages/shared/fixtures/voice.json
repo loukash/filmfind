@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Список Шиндлера (1993) BDRip-AVC от HELLYWOOD | Лицензия",
+    "expect": { "source": "BDRip", "codec": "H.264", "voice": ["Лицензия"] }
+  },
+  {
+    "title": "Барби 2023 BDRip 1080p x264 DDP 5.1 iTunes",
+    "expect": { "resolution": "1080p", "source": "BDRip", "codec": "H.264", "audio": { "format": "DDP", "channels": "5.1" }, "voice": ["iTunes"] }
+  },
+  {
+    "title": "Джентльмены 2019 BDRip 1080p x264 Dub MVO Subs",
+    "expect": { "resolution": "1080p", "source": "BDRip", "codec": "H.264", "voice": ["Дубляж", "MVO", "Субтитры"] }
+  },
+  {
+    "title": "Опенгеймер 2023 BDRemux 2160p HDR10 HEVC DTS-HD MA 7.1 Дубляж Лицензия",
+    "expect": { "resolution": "2160p", "source": "BDRemux", "codec": "H.265", "hdr": ["HDR10"], "audio": { "format": "DTS-HD", "channels": "7.1" }, "voice": ["Дубляж", "Лицензия"] }
+  },
+  {
+    "title": "Матрица 1999 UHD BluRay Remux 2160p H.265 HDR10 DD 5.1 Дубляж MVO DVO AVO Субтитры Лицензия",
+    "expect": { "resolution": "2160p", "source": "BDRemux", "codec": "H.265", "hdr": ["HDR10"], "audio": { "format": "DD", "channels": "5.1" }, "voice": ["Дубляж", "MVO", "DVO", "AVO", "Субтитры", "Лицензия"] }
+  },
+  {
+    "title": "Гравитация 2013 BDRip 1080p MVO AVO",
+    "expect": { "resolution": "1080p", "source": "BDRip", "voice": ["MVO", "AVO"] }
+  },
+  {
+    "title": "Ешь, молись, люби 2010 HDTVRip 720p MVO",
+    "expect": { "resolution": "720p", "source": "HDTV", "voice": ["MVO"] }
+  },
+  {
+    "title": "Ла Ла Ленд 2016 WEB-DL 1080p DDP 5.1 Дубляж iTunes",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "audio": { "format": "DDP", "channels": "5.1" }, "voice": ["Дубляж", "iTunes"] }
+  },
+  {
+    "title": "Дурак 2014 DVDRip AVO",
+    "expect": { "source": "DVDRip", "voice": ["AVO"] }
+  },
+  {
+    "title": "Охотники за привидениями 1984 WEB-DL 1080p DVO Субтитры",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "voice": ["DVO", "Субтитры"] }
+  },
+  {
+    "title": "Пираты Карибского моря 2017 BDRip 1080p Dub MVO Eng Subs",
+    "expect": { "resolution": "1080p", "source": "BDRip", "voice": ["Дубляж", "MVO", "Оригинал", "Субтитры"] }
+  },
+  {
+    "title": "Слово пацана Сезон 2 WEB-DL 1080p Dub",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "season": 2, "voice": ["Дубляж"] }
+  },
+  {
+    "title": "Операция Ы 1965 DVDRip Дубл.",
+    "expect": { "source": "DVDRip", "voice": ["Дубляж"] }
+  },
+  {
+    "title": "Однажды в Голливуде 2019 BDRip 1080p Одноголосый закадровый, субтитры",
+    "expect": { "resolution": "1080p", "source": "BDRip", "voice": ["AVO", "Субтитры"] }
+  },
+  {
+    "title": "Бриллиантовая рука 1968 Двухголосый DVDRip",
+    "expect": { "source": "DVDRip", "voice": ["DVO"] }
+  },
+  {
+    "title": "Носферату 2024 WEB-DL 1080p Оригинал Субтитры",
+    "expect": { "resolution": "1080p", "source": "WEB-DL", "voice": ["Оригинал", "Субтитры"] }
+  }
+]

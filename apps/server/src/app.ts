@@ -20,7 +20,12 @@ const CONTENT_SECURITY_POLICY = [
   "frame-ancestors 'none'",
 ].join('; ');
 
-export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
+/**
+ * Собирает приложение без регистрации роутов: логгер, заголовки безопасности,
+ * обработчики ошибок, статика. Нужен тестам, которые регистрируют один плагин
+ * изолированно.
+ */
+export async function buildBaseApp(config: AppConfig): Promise<FastifyInstance> {
   const app = Fastify({
     genReqId: () => randomUUID(),
     logger: {
@@ -125,7 +130,12 @@ export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
     void reply.sendFile('index.html');
   });
 
-  await registerRoutes(app, config);
+  return app;
+}
 
+/** Полное приложение: база плюс все API-роуты. */
+export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
+  const app = await buildBaseApp(config);
+  await registerRoutes(app, config);
   return app;
 }
