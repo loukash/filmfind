@@ -5,6 +5,7 @@ import { isApiError } from '../api/client';
 import { searchQueryOptions, useSearch, type SearchFilter } from '../api/queries';
 import { AppHeader } from '../components/AppHeader';
 import { PosterImage } from '../components/PosterImage';
+import { TmdbAttribution } from '../components/TmdbAttribution';
 import { navigate, searchPath, titlePath } from '../lib/router';
 import { clearHistory, pushHistory, readHistory } from '../lib/searchHistory';
 import { useDebouncedValue } from '../lib/useDebouncedValue';
@@ -361,6 +362,8 @@ export function Search() {
               )}
             </>
           )}
+
+          <TmdbAttribution className="mt-10" />
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useTitle } from '../api/queries';
 import { AppHeader } from '../components/AppHeader';
 import { ExpandableText } from '../components/ExpandableText';
 import { PosterImage } from '../components/PosterImage';
+import { TmdbAttribution } from '../components/TmdbAttribution';
 import { ReleasesSheet } from '../components/ReleasesSheet';
 import { useAuthedImage } from '../lib/useAuthedImage';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
@@ -236,6 +237,8 @@ export function Title({ type, id }: TitleProps) {
             )}
           </>
         )}
+
+        <TmdbAttribution className="mt-10" />
       </main>
 
       {data !== undefined && (

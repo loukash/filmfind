@@ -3,6 +3,7 @@ import { formatBytes, formatEta } from '@filmfind/shared';
 import { isApiError } from '../api/client';
 import { useTorrents } from '../api/queries';
 import { AppHeader } from '../components/AppHeader';
+import { TmdbAttribution } from '../components/TmdbAttribution';
 import { DownloadIcon } from '../components/icons';
 import { Link } from '../lib/router';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
@@ -170,6 +171,8 @@ export function Downloads() {
               ))}
             </ul>
           )}
+
+          <TmdbAttribution className="mt-10" />
         </div>
       </div>
     </div>
