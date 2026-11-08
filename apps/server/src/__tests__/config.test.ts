@@ -24,6 +24,22 @@ describe('loadConfig', () => {
     expect(config.tmdb.bearer).toBe(false);
   });
 
+  it('снимает обрамляющие кавычки у секретов из docker-compose', () => {
+    const double = loadConfig({ PROWLARR_API_KEY: '"abc123"', TMDB_API_KEY: '"def456"' });
+    expect(double.prowlarr.apiKey).toBe('abc123');
+    expect(double.tmdb.apiKey).toBe('def456');
+
+    const single = loadConfig({ APP_ACCESS_TOKEN: "'token'", TRANSMISSION_PASSWORD: "'pass'" });
+    expect(single.accessToken).toBe('token');
+    expect(single.transmission.password).toBe('pass');
+  });
+
+  it('не трогает кавычки внутри значения и оставляет пустую строку пустой', () => {
+    const config = loadConfig({ PROWLARR_API_KEY: 'ab"cd', APP_ACCESS_TOKEN: '""' });
+    expect(config.prowlarr.apiKey).toBe('ab"cd');
+    expect(config.accessToken).toBeUndefined();
+  });
+
   it('падает с понятным сообщением при невалидном PORT', () => {
     expect(() => loadConfig({ PORT: 'не-число' })).toThrow(ConfigError);
     expect(() => loadConfig({ PORT: 'не-число' })).toThrow(/PORT/);

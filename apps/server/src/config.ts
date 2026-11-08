@@ -34,7 +34,31 @@ const emptyToUndefined = (value: unknown): unknown => {
   return value;
 };
 
+/**
+ * Снимает обрамляющие кавычки у секретов.
+ *
+ * В `.env` dotenv снимает кавычки сам, а в `docker-compose.yml` запись
+ * `- VAR="value"` передаёт их внутрь значения — сервис получает ключ вместе с
+ * кавычками и отвечает 401. Ошибка неочевидная, поэтому терпим оба варианта.
+ */
+const stripWrappingQuotes = (value: unknown): unknown => {
+  const trimmed = emptyToUndefined(value);
+  if (typeof trimmed !== 'string' || trimmed.length < 2) return trimmed;
+
+  const first = trimmed[0];
+  const last = trimmed[trimmed.length - 1];
+  if ((first === '"' || first === "'") && first === last) {
+    const inner = trimmed.slice(1, -1).trim();
+    return inner === '' ? undefined : inner;
+  }
+
+  return trimmed;
+};
+
 const optionalString = z.preprocess(emptyToUndefined, z.string().optional());
+
+/** Секрет: как `optionalString`, но терпит кавычки из docker-compose. */
+const optionalSecret = z.preprocess(stripWrappingQuotes, z.string().optional());
 
 const optionalUrl = z.preprocess(
   emptyToUndefined,
@@ -68,15 +92,15 @@ const envSchema = z.object({
       ),
   ),
   NODE_ENV: optionalString,
-  TMDB_API_KEY: optionalString,
+  TMDB_API_KEY: optionalSecret,
   TMDB_LANGUAGE: optionalString,
   PROWLARR_URL: optionalUrl,
-  PROWLARR_API_KEY: optionalString,
+  PROWLARR_API_KEY: optionalSecret,
   TRANSMISSION_URL: optionalUrl,
   TRANSMISSION_USER: optionalString,
-  TRANSMISSION_PASSWORD: optionalString,
+  TRANSMISSION_PASSWORD: optionalSecret,
   TRANSMISSION_DOWNLOAD_DIR: optionalString,
-  APP_ACCESS_TOKEN: optionalString,
+  APP_ACCESS_TOKEN: optionalSecret,
 });
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
