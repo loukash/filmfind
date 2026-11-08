@@ -14,7 +14,9 @@ const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  // blob: нужен для постеров при включённом APP_ACCESS_TOKEN: картинки
+  // скачиваются через fetch с заголовком и подменяются blob-ссылкой.
+  "img-src 'self' data: blob:",
   "font-src 'self'",
   "connect-src 'self'",
   "object-src 'none'",
