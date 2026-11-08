@@ -21,6 +21,12 @@ export interface AppConfig {
     user?: string;
     password?: string;
     downloadDir?: string;
+    /** Переопределения каталога по категории; незаданные падают на `downloadDir`. */
+    downloadDirs: {
+      movie?: string;
+      tv?: string;
+      animation?: string;
+    };
   };
 }
 
@@ -104,6 +110,9 @@ const envSchema = z.object({
   TRANSMISSION_USER: optionalString,
   TRANSMISSION_PASSWORD: optionalQuoted,
   TRANSMISSION_DOWNLOAD_DIR: optionalQuoted,
+  TRANSMISSION_DOWNLOAD_DIR_MOVIE: optionalQuoted,
+  TRANSMISSION_DOWNLOAD_DIR_TV: optionalQuoted,
+  TRANSMISSION_DOWNLOAD_DIR_ANIMATION: optionalQuoted,
   APP_ACCESS_TOKEN: optionalQuoted,
 });
 
@@ -143,6 +152,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       user: data.TRANSMISSION_USER,
       password: data.TRANSMISSION_PASSWORD,
       downloadDir: data.TRANSMISSION_DOWNLOAD_DIR,
+      downloadDirs: {
+        movie: data.TRANSMISSION_DOWNLOAD_DIR_MOVIE,
+        tv: data.TRANSMISSION_DOWNLOAD_DIR_TV,
+        animation: data.TRANSMISSION_DOWNLOAD_DIR_ANIMATION,
+      },
     },
   };
 }

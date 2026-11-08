@@ -208,6 +208,46 @@ describe('POST /api/transmission/add', () => {
     expect(Object.hasOwn(parsed.arguments, 'metainfo')).toBe(false);
   });
 
+  it('каталог выбирается по типу тайтла, а не по клиенту', async () => {
+    const server = trackServer(await startServer());
+    rememberReleases(
+      [
+        makeRelease({
+          id: 'route-dir-tv-1',
+          title: 'Сериал S01',
+          magnetUrl: 'magnet:?xt=urn:btih:dir-tv',
+        }),
+      ],
+      { type: 'tv', isAnimation: true },
+    );
+
+    const app = await buildApp({
+      env: {
+        TRANSMISSION_URL: `${server.origin}/transmission/rpc`,
+        PROWLARR_URL: server.origin,
+        TRANSMISSION_DOWNLOAD_DIR: '/downloads/complete',
+        TRANSMISSION_DOWNLOAD_DIR_MOVIE: '/downloads/complete/film',
+        TRANSMISSION_DOWNLOAD_DIR_TV: '/downloads/complete/tv',
+        TRANSMISSION_DOWNLOAD_DIR_ANIMATION: '/downloads/complete/mult',
+      },
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/transmission/add',
+      payload: { releaseId: 'route-dir-tv-1' },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const rpc = server.requests.filter((request) => pathnameOf(request.path) !== '/download').at(-1);
+    const parsed = JSON.parse(rpc?.body.toString('utf8') ?? '{}') as {
+      arguments: Record<string, unknown>;
+    };
+    // Аниме-сериал идёт в каталог сериалов: тип важнее жанра.
+    expect(parsed.arguments['download-dir']).toBe('/downloads/complete/tv');
+  });
+
   it('неизвестный releaseId → 404 RELEASE_NOT_FOUND, Transmission не трогается', async () => {
     const server = trackServer(await startServer());
 

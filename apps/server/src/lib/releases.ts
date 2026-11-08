@@ -341,7 +341,10 @@ export function createReleasesService(deps: ReleasesServiceDeps): ReleasesServic
       const filtered = filterReleases(collected, query, title);
       const sorted = sortReleases(dedupeReleases(filtered));
       const internal = sorted.slice(0, limit);
-      rememberReleases(internal);
+      rememberReleases(internal, {
+        type: query.type,
+        isAnimation: title?.isAnimation === true,
+      });
 
       const result: ReleasesResult = {
         items: internal.map(toPublicRelease),

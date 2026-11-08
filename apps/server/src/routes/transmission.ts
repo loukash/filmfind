@@ -8,7 +8,8 @@ import {
   type TransmissionClient,
 } from '../clients/transmission.js';
 import type { AppConfig } from '../config.js';
-import { getReleaseById } from '../lib/release-store.js';
+import { resolveDownloadDir } from '../lib/download-dirs.js';
+import { getReleaseById, getReleaseContext } from '../lib/release-store.js';
 
 const TORRENT_MAX_BYTES = 10 * 1024 * 1024;
 const TORRENT_TIMEOUT_MS = 15_000;
@@ -156,6 +157,16 @@ export const transmissionRoutes: FastifyPluginAsync<TransmissionRoutesOptions> =
     // Для логов доступен только releaseId: магнит и downloadUrl содержат ключи.
     const releaseId = 'releaseId' in body ? body.releaseId : null;
 
+    // Каталог выбирает сервер по сохранённому контексту тайтла, а не клиент:
+    // иначе через API можно было бы писать в произвольную папку.
+    const downloadDir = resolveDownloadDir(
+      {
+        base: options.config.transmission.downloadDir,
+        ...options.config.transmission.downloadDirs,
+      },
+      releaseId === null ? undefined : getReleaseContext(releaseId),
+    );
+
     let addArgs: TransmissionAddArgs;
     try {
       if ('magnet' in body) {
@@ -186,7 +197,7 @@ export const transmissionRoutes: FastifyPluginAsync<TransmissionRoutesOptions> =
 
       const result = await client.add({
         ...addArgs,
-        downloadDir: options.config.transmission.downloadDir,
+        downloadDir,
       });
 
       request.log.info({ releaseId, torrentId: result.id ?? null }, `Раздача ${result.result}`);

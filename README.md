@@ -204,6 +204,12 @@ npm run dev -w @filmfind/web
 2. `TRANSMISSION_USER` / `TRANSMISSION_PASSWORD` — если задали
    `rpc-username` / `rpc-password`.
 3. Необязательно `TRANSMISSION_DOWNLOAD_DIR` — каталог загрузок.
+4. Необязательно `TRANSMISSION_DOWNLOAD_DIR_MOVIE` / `_TV` / `_ANIMATION` —
+   разные каталоги по категории. Мультфильмы идут в `_ANIMATION`, остальные
+   фильмы в `_MOVIE`, сериалы (включая аниме-сериалы) в `_TV`; незаданное
+   значение падает на `TRANSMISSION_DOWNLOAD_DIR`. Путь указывается внутри
+   контейнера Transmission, каталог должен существовать и быть доступен на
+   запись пользователю из `PUID`/`PGID`.
 
 ## Безопасность
 
