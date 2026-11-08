@@ -57,8 +57,12 @@ const stripWrappingQuotes = (value: unknown): unknown => {
 
 const optionalString = z.preprocess(emptyToUndefined, z.string().optional());
 
-/** Секрет: как `optionalString`, но терпит кавычки из docker-compose. */
-const optionalSecret = z.preprocess(stripWrappingQuotes, z.string().optional());
+/**
+ * Секрет или путь: как `optionalString`, но терпит кавычки из docker-compose.
+ * Применимо и к ключам, и к `TRANSMISSION_DOWNLOAD_DIR`: кавычки в значении
+ * ломают и авторизацию, и путь загрузки.
+ */
+const optionalQuoted = z.preprocess(stripWrappingQuotes, z.string().optional());
 
 const optionalUrl = z.preprocess(
   emptyToUndefined,
@@ -92,15 +96,15 @@ const envSchema = z.object({
       ),
   ),
   NODE_ENV: optionalString,
-  TMDB_API_KEY: optionalSecret,
+  TMDB_API_KEY: optionalQuoted,
   TMDB_LANGUAGE: optionalString,
   PROWLARR_URL: optionalUrl,
-  PROWLARR_API_KEY: optionalSecret,
+  PROWLARR_API_KEY: optionalQuoted,
   TRANSMISSION_URL: optionalUrl,
   TRANSMISSION_USER: optionalString,
-  TRANSMISSION_PASSWORD: optionalSecret,
-  TRANSMISSION_DOWNLOAD_DIR: optionalString,
-  APP_ACCESS_TOKEN: optionalSecret,
+  TRANSMISSION_PASSWORD: optionalQuoted,
+  TRANSMISSION_DOWNLOAD_DIR: optionalQuoted,
+  APP_ACCESS_TOKEN: optionalQuoted,
 });
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
