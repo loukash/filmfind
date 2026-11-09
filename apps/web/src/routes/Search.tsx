@@ -232,14 +232,14 @@ export function Search() {
           <div
             role="group"
             aria-label="Фильтр по типу"
-            className="mt-3 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-3 flex gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {FILTERS.map((entry) => (
               <Chip
                 key={entry.value}
                 active={filter === entry.value}
                 onClick={() => setFilter(entry.value)}
-                className="px-3.5 text-[13px]"
+                className="px-3 text-[13px]"
               >
                 {entry.label}
               </Chip>

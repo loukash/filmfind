@@ -28,7 +28,9 @@ export function ReleaseCard({ release }: { release: ReleaseDTO }) {
 
   return (
     <Card className="space-y-2.5 p-3">
-      <p className="line-clamp-2 text-sm font-medium leading-snug text-fg">{release.title}</p>
+      <p className="line-clamp-2 break-words text-sm font-medium leading-snug text-fg [overflow-wrap:anywhere]">
+        {release.title}
+      </p>
 
       <ReleaseBadges quality={release.quality} />
 

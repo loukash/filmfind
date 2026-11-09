@@ -58,7 +58,7 @@ function TorrentCard({ torrent }: { torrent: TorrentDTO }) {
   return (
     <Card className="space-y-2.5 p-3">
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 flex-1 line-clamp-2 text-sm font-medium leading-snug text-fg">
+        <p className="min-w-0 flex-1 line-clamp-2 break-words text-sm font-medium leading-snug text-fg [overflow-wrap:anywhere]">
           {torrent.name}
         </p>
         <Badge tone={state.tone}>{state.label}</Badge>
