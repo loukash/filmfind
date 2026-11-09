@@ -96,7 +96,7 @@
     "expect": { "resolution": "2160p", "source": "WEB-DL", "codec": "H.265", "hdr": ["Dolby Vision", "HDR10+"], "audio": { "format": "DDP", "channels": "5.1", "atmos": true } }
   },
   {
-    "title": "The.Shawshank.Redemption.1994.1080p.BluRay.H264.AAC-RARBG",
+    "title": "The.Shawshank.Redemption.1994.1080p.BluRay.H264.AAC-GROUP",
     "expect": { "resolution": "1080p", "source": "BluRay", "codec": "H.264", "audio": { "format": "AAC" } }
   },
   {

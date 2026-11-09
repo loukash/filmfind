@@ -14,6 +14,18 @@ Prowlarr и отправки выбранной раздачи в Transmission.
 TypeScript с валидацией env, React 19 + Vite + Tailwind CSS v4 с
 дизайн-системой, multi-stage Docker-сборка.
 
+## Скриншоты
+
+<p align="center">
+  <img src="./docs/screenshots/search-desktop.png" alt="Поиск фильмов и сериалов" width="100%">
+</p>
+
+<p align="center">
+  <img src="./docs/screenshots/search-mobile.png" alt="Поиск на телефоне" width="31%">
+  <img src="./docs/screenshots/title-mobile.png" alt="Карточка тайтла с постером, рейтингом и описанием" width="31%">
+  <img src="./docs/screenshots/releases-mobile.png" alt="Список раздач с бейджами качества и сидами" width="31%">
+</p>
+
 ## Возможности
 
 - Поиск фильмов и сериалов по TMDB с карточками, постерами и деталями тайтла
@@ -251,6 +263,8 @@ npm run dev -w @filmfind/web
   интерфейс откроется, но поиск и раздачи работать не будут.
 - **За общим reverse proxy счётчик rate limit считает всех как один IP**
   до включения `trustProxy` в Fastify.
+- **Интерфейс пока только на русском.** Строки не вынесены в файлы перевода,
+  поэтому подписи и скриншоты остаются на русском независимо от языка README.
 
 ## Правовая оговорка
 

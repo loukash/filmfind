@@ -14,6 +14,18 @@ The project is an npm-workspaces monorepo (`apps/server`, `apps/web`,
 TypeScript with env validation, React 19 + Vite + Tailwind CSS v4 with a
 design system, and a multi-stage Docker build.
 
+## Screenshots
+
+<p align="center">
+  <img src="./docs/screenshots/search-desktop.png" alt="Search across movies and TV shows" width="100%">
+</p>
+
+<p align="center">
+  <img src="./docs/screenshots/search-mobile.png" alt="Search on a phone" width="31%">
+  <img src="./docs/screenshots/title-mobile.png" alt="Title page with poster, rating and overview" width="31%">
+  <img src="./docs/screenshots/releases-mobile.png" alt="Release list with quality badges and seeders" width="31%">
+</p>
+
 ## Features
 
 - Search movies and TV shows via TMDB with posters, cards and title details
@@ -256,6 +268,9 @@ What the server already does:
   work.
 - **Behind a shared reverse proxy the rate limiter treats every client as one
   IP** until `trustProxy` is enabled in Fastify.
+- **The UI is Russian-only for now.** The interface strings are not extracted
+  for translation yet, so screenshots and labels stay in Russian regardless of
+  the README language.
 
 ## Legal
 

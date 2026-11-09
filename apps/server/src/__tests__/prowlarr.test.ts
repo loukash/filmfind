@@ -36,7 +36,7 @@ describe('normalizeProwlarrRelease', () => {
       size: 123456,
       seeders: 42,
       leechers: 7,
-      indexer: 'Rutor',
+      indexer: 'ExampleTracker',
       indexerId: 3,
       publishDate: '2024-01-02T03:04:05Z',
       infoHash: 'ABCDEF0123',
@@ -54,7 +54,7 @@ describe('normalizeProwlarrRelease', () => {
       size: 123456,
       seeders: 42,
       leechers: 7,
-      indexer: 'Rutor',
+      indexer: 'ExampleTracker',
       indexerId: 3,
       publishDate: '2024-01-02T03:04:05Z',
       infoHash: 'ABCDEF0123',
@@ -216,7 +216,7 @@ describe('createProwlarrClient.getIndexers', () => {
   it('маппит список индексаторов', async () => {
     const fetchImpl = createFetch(() =>
       jsonResponse([
-        { id: 1, name: 'Rutor', enable: true, protocol: 'torrent' },
+        { id: 1, name: 'ExampleTracker', enable: true, protocol: 'torrent' },
         { id: 2, name: 'NZBgeek', enable: false, protocol: 'usenet' },
         { name: 'без id' },
       ]),
@@ -226,7 +226,7 @@ describe('createProwlarrClient.getIndexers', () => {
     const indexers = await client.getIndexers();
 
     expect(indexers).toEqual([
-      { id: 1, name: 'Rutor', enable: true, protocol: 'torrent' },
+      { id: 1, name: 'ExampleTracker', enable: true, protocol: 'torrent' },
       { id: 2, name: 'NZBgeek', enable: false, protocol: 'usenet' },
     ]);
   });
