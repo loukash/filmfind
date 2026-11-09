@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------- Сборка ----------
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ COPY apps/web apps/web
 RUN npm run build
 
 # ---------- Runtime ----------
-FROM node:22-alpine AS runtime
+FROM node:24-alpine AS runtime
 
 WORKDIR /app
 

@@ -196,7 +196,8 @@ docker network create media   # если сети ещё нет
 
 ## Локальная разработка
 
-Требуется Node.js 22+ (проверено на Node 25) и npm.
+Требуется Node.js 22+ и npm; Docker-образ собирается на Node 24. CI
+прогоняет сборку и тесты на 22 и 24.
 
 ```bash
 npm install

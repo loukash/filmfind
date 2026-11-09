@@ -200,7 +200,8 @@ on Linux the `host-gateway` entry is already included.
 
 ## Local development
 
-Requires Node.js 22+ (tested on Node 25) and npm.
+Requires Node.js 22+ and npm; the Docker image ships Node 24. CI runs the
+build and tests on both 22 and 24.
 
 ```bash
 npm install
