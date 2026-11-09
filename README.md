@@ -56,6 +56,25 @@ App: <http://localhost:8080>. Service status:
 curl -s http://localhost:8080/api/health | jq
 ```
 
+### Prebuilt image from GHCR
+
+You do not have to build locally: on every push to the default branch and on
+`v*` tags the image is built and published to GitHub Container Registry.
+
+```bash
+docker pull ghcr.io/loukash/filmfind:latest
+```
+
+In `docker-compose.yml` replace `build: .` with:
+
+```yaml
+    image: ghcr.io/loukash/filmfind:latest
+```
+
+Tags: `latest` for the default branch, `sha-abc1234` for a specific commit,
+`v1.2.3` and `1.2` for git tags. The image is built for `linux/amd64` and
+`linux/arm64`.
+
 If Prowlarr or Transmission run on the host, enable option B in
 `docker-compose.yml` (`extra_hosts`) and use
 `http://host.docker.internal:9696` and `http://host.docker.internal:9091`.

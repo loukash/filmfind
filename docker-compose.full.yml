@@ -20,6 +20,8 @@ name: filmfind
 
 services:
   filmfind:
+    # Можно не собирать локально, а взять готовый образ из GHCR:
+    # image: ghcr.io/loukash/filmfind:latest
     build: .
     image: filmfind:latest
     container_name: filmfind

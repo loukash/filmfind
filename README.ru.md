@@ -55,6 +55,25 @@ docker compose up -d --build
 curl -s http://localhost:8080/api/health | jq
 ```
 
+### Готовый образ из GHCR
+
+Собирать локально не обязательно: при каждом пуше в основную ветку и на теги
+`v*` образ собирается и публикуется в GitHub Container Registry.
+
+```bash
+docker pull ghcr.io/loukash/filmfind:latest
+```
+
+В `docker-compose.yml` замените `build: .` на:
+
+```yaml
+    image: ghcr.io/loukash/filmfind:latest
+```
+
+Теги: `latest` — основная ветка, `sha-abc1234` — конкретный коммит,
+`v1.2.3` и `1.2` — для git-тегов. Образ собирается под `linux/amd64` и
+`linux/arm64`.
+
 Если Prowlarr или Transmission запущены на хосте, включите в
 `docker-compose.yml` вариант B (`extra_hosts`) и используйте адреса
 `http://host.docker.internal:9696` и `http://host.docker.internal:9091`.
