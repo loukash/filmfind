@@ -71,8 +71,9 @@ In `docker-compose.yml` replace `build: .` with:
     image: ghcr.io/loukash/filmfind:latest
 ```
 
-Tags: `latest` for the default branch, `sha-abc1234` for a specific commit,
-`v1.2.3` and `1.2` for git tags. The image is built for `linux/amd64` and
+The image is published on release tags only: pushing `v1.2.3` produces
+`1.2.3`, `1.2` and `latest`. Branch pushes do not rebuild the image; pull
+requests only verify that it builds. Architectures: `linux/amd64` and
 `linux/arm64`.
 
 If Prowlarr or Transmission run on the host, enable option B in

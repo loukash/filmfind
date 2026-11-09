@@ -70,9 +70,9 @@ docker pull ghcr.io/loukash/filmfind:latest
     image: ghcr.io/loukash/filmfind:latest
 ```
 
-Теги: `latest` — основная ветка, `sha-abc1234` — конкретный коммит,
-`v1.2.3` и `1.2` — для git-тегов. Образ собирается под `linux/amd64` и
-`linux/arm64`.
+Образ собирается только на релизные теги: пуш тега `v1.2.3` даёт образы
+`1.2.3`, `1.2` и `latest`. Пуш в ветку образ не пересобирает — в PR
+проверяется только сборка. Архитектуры — `linux/amd64` и `linux/arm64`.
 
 Если Prowlarr или Transmission запущены на хосте, включите в
 `docker-compose.yml` вариант B (`extra_hosts`) и используйте адреса

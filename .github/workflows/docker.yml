@@ -1,8 +1,9 @@
 name: Docker
 
 on:
+  # Образ публикуется только для релизных тегов вида v1.2.3.
+  # Пуш в ветку образ не пересобирает — только проверяет сборку в PR.
   push:
-    branches: [main, master]
     tags: ['v*']
   pull_request:
     branches: [main, master]
@@ -35,18 +36,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Теги: 1.2.3, 1.2 и latest. Никаких имён веток и sha.
       - name: Metadata
         id: meta
         uses: docker/metadata-action@v6
         with:
           images: ${{ steps.image.outputs.name }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,format=short
+            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v7
