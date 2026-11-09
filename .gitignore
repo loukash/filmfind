@@ -9,3 +9,7 @@ coverage/
 .vite/
 *.tsbuildinfo
 !.gitignore
+
+# Данные полного стека (docker-compose.full.yml)
+data/
+downloads/

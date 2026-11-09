@@ -1,0 +1,89 @@
+# Полный стек: FilmFind + Prowlarr + Transmission в одном compose.
+#
+# Альтернатива docker-compose.yml, который поднимает только FilmFind и ждёт
+# Prowlarr/Transmission снаружи. Здесь всё создаётся с нуля.
+#
+# Порядок запуска:
+#   1. cp .env.example .env
+#      заполните TMDB_API_KEY и TRANSMISSION_PASSWORD (без него стек не стартует)
+#   2. mkdir -p downloads/complete/film downloads/complete/tv downloads/complete/mult
+#   3. docker compose -f docker-compose.full.yml up -d
+#   4. откройте http://localhost:9696, добавьте индексаторы,
+#      скопируйте API Key из Settings → General в .env как PROWLARR_API_KEY
+#   5. docker compose -f docker-compose.full.yml up -d filmfind
+#
+# FilmFind:      http://localhost:8080
+# Prowlarr:      http://localhost:9696
+# Transmission:  http://localhost:9091
+
+name: filmfind
+
+services:
+  filmfind:
+    build: .
+    image: filmfind:latest
+    container_name: filmfind
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Адреса внутренние: сервисы видны по именам в общей сети стека.
+      PORT: 8080
+      PROWLARR_URL: http://prowlarr:9696
+      TRANSMISSION_URL: http://transmission:9091/transmission/rpc
+      TRANSMISSION_USER: ${TRANSMISSION_USER:-filmfind}
+      TRANSMISSION_PASSWORD: ${TRANSMISSION_PASSWORD:?Задайте TRANSMISSION_PASSWORD в .env}
+      # Пути — внутри контейнера Transmission, он видит тот же том /downloads.
+      TRANSMISSION_DOWNLOAD_DIR: /downloads/complete/film
+      TRANSMISSION_DOWNLOAD_DIR_MOVIE: /downloads/complete/film
+      TRANSMISSION_DOWNLOAD_DIR_TV: /downloads/complete/tv
+      TRANSMISSION_DOWNLOAD_DIR_ANIMATION: /downloads/complete/mult
+    ports:
+      - "8080:8080"
+    depends_on:
+      - prowlarr
+      - transmission
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  prowlarr:
+    # Версия, на которой проверялась интеграция. Можно заменить на :latest.
+    image: lscr.io/linuxserver/prowlarr:2.6.5
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Etc/UTC}
+    volumes:
+      - ./data/prowlarr:/config
+    ports:
+      - "9696:9696"
+
+  transmission:
+    # Классический RPC, с которым работает клиент, поддерживается и в 3.x, и в 4.x.
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Etc/UTC}
+      # Логин RPC. FilmFind ходит с теми же значениями.
+      USER: ${TRANSMISSION_USER:-filmfind}
+      PASS: ${TRANSMISSION_PASSWORD:?Задайте TRANSMISSION_PASSWORD в .env}
+      # Без этой строки Transmission пустит только 127.0.0.1, и запросы
+      # из соседнего контейнера получат 403.
+      WHITELIST: "127.0.0.1,::1,172.*.*.*,10.*.*.*"
+    volumes:
+      - ./data/transmission:/config
+      - ./downloads:/downloads
+      - ./downloads/watch:/watch
+    ports:
+      - "9091:9091"
+      # Порт для пиров: нужен для нормальной раздачи.
+      - "51413:51413"
+      - "51413:51413/udp"

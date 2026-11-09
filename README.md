@@ -63,6 +63,47 @@ If they are containers on a shared Docker network, enable option A
 (`networks`) and address them by container name. See
 "Networking for Prowlarr and Transmission" below.
 
+### Turnkey stack: FilmFind + Prowlarr + Transmission
+
+If Prowlarr and Transmission are not running yet, use
+[`docker-compose.full.yml`](./docker-compose.full.yml) — it brings up
+everything from scratch:
+
+```bash
+cp .env.example .env
+# fill in TMDB_API_KEY and TRANSMISSION_PASSWORD
+mkdir -p downloads/complete/film downloads/complete/tv downloads/complete/mult
+docker compose -f docker-compose.full.yml up -d
+```
+
+Prowlarr starts empty. Open <http://localhost:9696>, add indexers, copy the API
+Key from Settings → General into `.env` as `PROWLARR_API_KEY`, then restart the
+app:
+
+```bash
+docker compose -f docker-compose.full.yml up -d filmfind
+```
+
+| Service | Address | Data |
+|---|---|---|
+| FilmFind | <http://localhost:8080> | — |
+| Prowlarr | <http://localhost:9696> | `./data/prowlarr` |
+| Transmission | <http://localhost:9091> | `./data/transmission`, downloads in `./downloads` |
+
+Already wired up for you:
+
+- FilmFind gets the internal addresses `http://prowlarr:9696` and
+  `http://transmission:9091/transmission/rpc` from compose — no need to put
+  them in `.env`;
+- the Transmission RPC login comes from `TRANSMISSION_PASSWORD`, and FilmFind
+  receives the same credentials automatically;
+- `WHITELIST` includes Docker subnets (`172.*.*.*`, `10.*.*.*`), so requests
+  from the neighbouring container are not rejected with 403;
+- downloads are sorted into `downloads/complete/film`, `tv` and `mult`.
+
+`PUID`/`PGID` default to `1000` — adjust them to your host user, otherwise
+Transmission cannot write into `./downloads`.
+
 ## Access token (APP_ACCESS_TOKEN)
 
 By default the API is open to the whole local network. If other people can
@@ -313,6 +354,7 @@ packages/
   shared/        DTO contract, formatting, quality parser
 Dockerfile
 docker-compose.yml
+docker-compose.full.yml
 ```
 
 Technical decisions and deviations are documented in [`NOTES.md`](./NOTES.md).

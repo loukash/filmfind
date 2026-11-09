@@ -62,6 +62,46 @@ curl -s http://localhost:8080/api/health | jq
 и обращайтесь по именам контейнеров. Подробнее — в разделе
 «Настройка сети для Prowlarr и Transmission» ниже.
 
+### Полный стек: FilmFind + Prowlarr + Transmission
+
+Если Prowlarr и Transmission ещё не подняты, есть готовый
+[`docker-compose.full.yml`](./docker-compose.full.yml) — он создаёт всё с нуля:
+
+```bash
+cp .env.example .env
+# заполните TMDB_API_KEY и TRANSMISSION_PASSWORD
+mkdir -p downloads/complete/film downloads/complete/tv downloads/complete/mult
+docker compose -f docker-compose.full.yml up -d
+```
+
+Prowlarr стартует пустым. Откройте <http://localhost:9696>, добавьте
+индексаторы, скопируйте API Key из Settings → General в `.env` как
+`PROWLARR_API_KEY` и перезапустите приложение:
+
+```bash
+docker compose -f docker-compose.full.yml up -d filmfind
+```
+
+| Сервис | Адрес | Где данные |
+|---|---|---|
+| FilmFind | <http://localhost:8080> | — |
+| Prowlarr | <http://localhost:9696> | `./data/prowlarr` |
+| Transmission | <http://localhost:9091> | `./data/transmission`, загрузки в `./downloads` |
+
+Что уже настроено за вас:
+
+- FilmFind получает внутренние адреса `http://prowlarr:9696` и
+  `http://transmission:9091/transmission/rpc` из compose, в `.env` их писать
+  не нужно;
+- логин RPC Transmission задаётся `TRANSMISSION_PASSWORD`, FilmFind получает
+  те же значения автоматически;
+- `WHITELIST` включает docker-подсети (`172.*.*.*`, `10.*.*.*`), поэтому
+  запросы из соседнего контейнера не получают 403;
+- загрузки раскладываются по `downloads/complete/film`, `tv` и `mult`.
+
+`PUID`/`PGID` по умолчанию `1000` — подгоните под своего пользователя, если
+на хосте другой uid, иначе Transmission не сможет писать в `./downloads`.
+
 ## Токен доступа (APP_ACCESS_TOKEN)
 
 По умолчанию API открыт для всей локальной сети. Если приложением могут
@@ -306,6 +346,7 @@ packages/
   shared/        DTO-контракт, форматирование, парсер качества
 Dockerfile
 docker-compose.yml
+docker-compose.full.yml
 ```
 
 Технические решения и отклонения описаны в [`NOTES.md`](./NOTES.md).
