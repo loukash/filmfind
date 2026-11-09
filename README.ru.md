@@ -2,6 +2,12 @@
 
 [English](./README.md) | **Русский**
 
+[![CI](https://github.com/loukash/filmfind/actions/workflows/ci.yml/badge.svg)](https://github.com/loukash/filmfind/actions/workflows/ci.yml)
+[![Docker](https://github.com/loukash/filmfind/actions/workflows/docker.yml/badge.svg)](https://github.com/loukash/filmfind/actions/workflows/docker.yml)
+[![GHCR](https://img.shields.io/badge/ghcr.io-filmfind-blue)](https://github.com/loukash/filmfind/pkgs/container/filmfind)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](./LICENSE)
+
+
 Self-hosted веб-приложение для поиска фильмов и сериалов, поиска раздач через
 Prowlarr и отправки выбранной раздачи в Transmission.
 
@@ -43,10 +49,12 @@ TypeScript с валидацией env, React 19 + Vite + Tailwind CSS v4 с
 
 ## Быстрый старт (Docker)
 
+Готовый образ публикуется в GitHub Container Registry на каждый релизный тег.
+
 ```bash
 cp .env.example .env
 # отредактируйте .env: как минимум TMDB_API_KEY
-docker compose up -d --build
+docker compose up -d
 ```
 
 Приложение: <http://localhost:8080>. Проверка состояния сервисов:
@@ -55,24 +63,25 @@ docker compose up -d --build
 curl -s http://localhost:8080/api/health | jq
 ```
 
-### Готовый образ из GHCR
+Образ: `ghcr.io/loukash/filmfind:latest`, архитектуры `linux/amd64` и
+`linux/arm64`. Теги `1.2.3`, `1.2` и `latest` ставятся при пуше git-тега
+`v1.2.3`; пуш в ветку образ не пересобирает.
 
-Собирать локально не обязательно: при каждом пуше в основную ветку и на теги
-`v*` образ собирается и публикуется в GitHub Container Registry.
+### Сборка из исходников
+
+Нужна, если правите код или ваша архитектура не поддерживается:
 
 ```bash
-docker pull ghcr.io/loukash/filmfind:latest
+cp .env.example .env
+docker build -t ghcr.io/loukash/filmfind:latest .
+docker compose up -d
 ```
 
-В `docker-compose.yml` замените `build: .` на:
+Сборка помечается тем же именем, которое ждёт `docker-compose.yml`, поэтому
+дальше всё работает как с готовым образом. Для полного стека те же команды с
+`-f docker-compose.full.yml`.
 
-```yaml
-    image: ghcr.io/loukash/filmfind:latest
-```
 
-Образ собирается только на релизные теги: пуш тега `v1.2.3` даёт образы
-`1.2.3`, `1.2` и `latest`. Пуш в ветку образ не пересобирает — в PR
-проверяется только сборка. Архитектуры — `linux/amd64` и `linux/arm64`.
 
 Если Prowlarr или Transmission запущены на хосте, включите в
 `docker-compose.yml` вариант B (`extra_hosts`) и используйте адреса

@@ -20,10 +20,10 @@ name: filmfind
 
 services:
   filmfind:
-    # Можно не собирать локально, а взять готовый образ из GHCR:
-    # image: ghcr.io/loukash/filmfind:latest
-    build: .
-    image: filmfind:latest
+    # Готовый образ из GHCR. Локальная сборка — см. README, раздел
+    # «Сборка из исходников»: docker build -t ghcr.io/loukash/filmfind:latest .
+    image: ghcr.io/loukash/filmfind:latest
+    # build: .
     container_name: filmfind
     restart: unless-stopped
     env_file: .env

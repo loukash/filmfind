@@ -2,6 +2,11 @@
 
 **English** | [Русский](./README.ru.md)
 
+[![CI](https://github.com/loukash/filmfind/actions/workflows/ci.yml/badge.svg)](https://github.com/loukash/filmfind/actions/workflows/ci.yml)
+[![Docker](https://github.com/loukash/filmfind/actions/workflows/docker.yml/badge.svg)](https://github.com/loukash/filmfind/actions/workflows/docker.yml)
+[![GHCR](https://img.shields.io/badge/ghcr.io-filmfind-blue)](https://github.com/loukash/filmfind/pkgs/container/filmfind)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](./LICENSE)
+
 A self-hosted web app for browsing movies and TV shows, finding releases
 through Prowlarr and sending the one you pick to Transmission.
 
@@ -44,10 +49,12 @@ design system, and a multi-stage Docker build.
 
 ## Quick start (Docker)
 
+The image is published to GitHub Container Registry on every release tag.
+
 ```bash
 cp .env.example .env
-# edit .env: at minimum TMDB_API_KEY
-docker compose up -d --build
+# edit .env: TMDB_API_KEY at minimum
+docker compose up -d
 ```
 
 App: <http://localhost:8080>. Service status:
@@ -56,25 +63,24 @@ App: <http://localhost:8080>. Service status:
 curl -s http://localhost:8080/api/health | jq
 ```
 
-### Prebuilt image from GHCR
+Image: `ghcr.io/loukash/filmfind:latest`, built for `linux/amd64` and
+`linux/arm64`. Pushing the git tag `v1.2.3` produces `1.2.3`, `1.2` and
+`latest`; branch pushes do not rebuild the image.
 
-You do not have to build locally: on every push to the default branch and on
-`v*` tags the image is built and published to GitHub Container Registry.
+### Building from source
+
+Use it when you change the code or your architecture is not covered:
 
 ```bash
-docker pull ghcr.io/loukash/filmfind:latest
+cp .env.example .env
+docker build -t ghcr.io/loukash/filmfind:latest .
+docker compose up -d
 ```
 
-In `docker-compose.yml` replace `build: .` with:
+The build is tagged with the same name `docker-compose.yml` expects, so
+everything afterwards works exactly as with the prebuilt image. For the
+turnkey stack use the same commands with `-f docker-compose.full.yml`.
 
-```yaml
-    image: ghcr.io/loukash/filmfind:latest
-```
-
-The image is published on release tags only: pushing `v1.2.3` produces
-`1.2.3`, `1.2` and `latest`. Branch pushes do not rebuild the image; pull
-requests only verify that it builds. Architectures: `linux/amd64` and
-`linux/arm64`.
 
 If Prowlarr or Transmission run on the host, enable option B in
 `docker-compose.yml` (`extra_hosts`) and use
