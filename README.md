@@ -1,281 +1,303 @@
 # FilmFind
 
-Self-hosted веб-приложение для поиска фильмов и сериалов, поиска раздач через
-Prowlarr и отправки выбранной раздачи в Transmission.
+**English** | [Русский](./README.ru.md)
 
-Один контейнер: Fastify-сервер раздаёт собранный React-фронтенд и проксирует
-запросы к TMDB / Prowlarr / Transmission, поэтому браузеру не нужен доступ к
-внутренним сервисам напрямую.
+A self-hosted web app for browsing movies and TV shows, finding releases
+through Prowlarr and sending the one you pick to Transmission.
 
-Само приложение — монорепо на npm workspaces (`apps/server`, `apps/web`,
-`packages/shared`): общий контракт типов (`@filmfind/shared`), Fastify 5 +
-TypeScript с валидацией env, React 19 + Vite + Tailwind CSS v4 с
-дизайн-системой, multi-stage Docker-сборка.
+One container: a Fastify server serves the built React frontend and proxies
+requests to TMDB / Prowlarr / Transmission, so the browser never needs direct
+access to your internal services.
 
-## Возможности
+The project is an npm-workspaces monorepo (`apps/server`, `apps/web`,
+`packages/shared`): a shared type contract (`@filmfind/shared`), Fastify 5 +
+TypeScript with env validation, React 19 + Vite + Tailwind CSS v4 with a
+design system, and a multi-stage Docker build.
 
-- Поиск фильмов и сериалов по TMDB с карточками, постерами и деталями тайтла
-  (год, жанры, описание, IMDb ID).
-- Поиск раздач по выбранному тайтлу через Prowlarr: список с качеством
-  (1080p, WEB-DL и т.п.), размером, сидерами и индексаторами.
-- Отправка раздачи в Transmission одним кликом (магнит, .torrent или
-  releaseId из локального индекса) и просмотр списка загрузок.
-- Прокси постеров через сервер (`/api/img/...`) — браузеру не нужен прямой
-  доступ к TMDB; всё внутреннее (магниты, ссылки .torrent, ключи API)
-  остаётся на сервере.
-- Безопасность: общий токен доступа (опционально), rate limit по IP,
-  строгие CSP и другие security-заголовки, маскирование секретов в логах.
-- Один контейнер на Docker Compose; история поиска — в localStorage браузера.
+## Features
 
-## Быстрый старт (Docker)
+- Search movies and TV shows via TMDB with posters, cards and title details
+  (year, genres, overview, IMDb ID).
+- Find releases for the selected title through Prowlarr: quality badges
+  (1080p, WEB-DL and so on), size, seeders and indexer.
+- Send a release to Transmission in one click (magnet, `.torrent` or a
+  `releaseId` from the local index) and watch the download list.
+- Poster proxying through the server (`/api/img/...`) — the browser never
+  talks to TMDB directly, and everything sensitive (magnets, `.torrent`
+  links, API keys) stays on the server.
+- Security: optional shared access token, per-IP rate limiting, strict CSP
+  and other security headers, secret redaction in logs.
+- A single Docker Compose container; search history lives in browser
+  `localStorage`.
+
+## Quick start (Docker)
 
 ```bash
 cp .env.example .env
-# отредактируйте .env: как минимум TMDB_API_KEY
+# edit .env: at minimum TMDB_API_KEY
 docker compose up -d --build
 ```
 
-Приложение: <http://localhost:8080>. Проверка состояния сервисов:
+App: <http://localhost:8080>. Service status:
 
 ```bash
 curl -s http://localhost:8080/api/health | jq
 ```
 
-Если Prowlarr или Transmission запущены на хосте, включите в
-`docker-compose.yml` вариант B (`extra_hosts`) и используйте адреса
-`http://host.docker.internal:9696` и `http://host.docker.internal:9091`.
-Если это контейнеры в общей docker-сети — включите вариант A (`networks`)
-и обращайтесь по именам контейнеров. Подробнее — в разделе
-«Настройка сети для Prowlarr и Transmission» ниже.
+If Prowlarr or Transmission run on the host, enable option B in
+`docker-compose.yml` (`extra_hosts`) and use
+`http://host.docker.internal:9696` and `http://host.docker.internal:9091`.
+If they are containers on a shared Docker network, enable option A
+(`networks`) and address them by container name. See
+"Networking for Prowlarr and Transmission" below.
 
-## Токен доступа (APP_ACCESS_TOKEN)
+## Access token (APP_ACCESS_TOKEN)
 
-По умолчанию API открыт для всей локальной сети. Если приложением могут
-пользоваться не только вы, задайте общий токен:
+By default the API is open to the whole local network. If other people can
+reach the app, set a shared token:
 
 ```bash
-# в .env
+# in .env
 APP_ACCESS_TOKEN=<openssl rand -hex 32>
 ```
 
-После перезапуска контейнера все запросы `/api/*` требуют заголовок:
+After restarting the container every `/api/*` request requires:
 
 ```
 Authorization: Bearer <APP_ACCESS_TOKEN>
 ```
 
-Без заголовка или с неверным токеном — `401 {"code": "UNAUTHORIZED"}`.
-Фронтенд хранит токен в `localStorage` (ключ `filmfind.token`) и добавляет
-его к запросам автоматически.
+A missing or wrong token returns `401 {"code": "UNAUTHORIZED"}`. The frontend
+keeps the token in `localStorage` (key `filmfind.token`) and attaches it
+automatically.
 
-**Исключение:** `/api/health` остаётся публичным даже с заданным токеном —
-он используется Docker healthcheck (`wget http://127.0.0.1:8080/api/health`)
-и индикатором статуса сервиса до ввода токена. Ответ health не содержит
-никаких секретов, только ok/degraded по каждому сервису.
+**Exception:** `/api/health` stays public even when a token is set. It is used
+by the Docker healthcheck (`wget http://127.0.0.1:8080/api/health`) and by the
+status indicator shown before the token is entered. The health response
+contains no secrets, only ok/degraded per service.
 
-Проверка из терминала:
+Checking from a terminal:
 
 ```bash
 TOKEN=$(grep '^APP_ACCESS_TOKEN=' .env | cut -d= -f2)
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/releases?type=movie&q=dune
 ```
 
-## Rate limit
+## Rate limiting
 
-Ограничение по IP без внешних зависимостей (in-memory, окно 1 минута):
+Per-IP limiting with no external dependencies (in-memory, one-minute window):
 
-| Точка | Лимит |
+| Endpoint | Limit |
 |---|---|
-| `/api/titles/search`, `/api/releases` | 60/мин на IP |
-| `/api/transmission/add` | 20/мин на IP |
-| остальные `/api/*` (health, детали тайтла, постеры) | 300/мин на IP |
+| `/api/titles/search`, `/api/releases` | 60/min per IP |
+| `/api/transmission/add` | 20/min per IP |
+| other `/api/*` (health, title details, posters) | 300/min per IP |
 
-При превышении — `429 {"code": "RATE_LIMITED"}` и заголовок `Retry-After`.
-На всех ответах `/api/*` есть `X-RateLimit-Limit` и `X-RateLimit-Remaining`.
-Счётчик ведётся по `request.ip`. За обратным прокси все клиенты
-приходят с одного IP — при необходимости включите в Fastify `trustProxy`,
-чтобы брался реальный адрес из `X-Forwarded-For`; для self-hosted за
-одним прокси это обычно не нужно.
+Exceeding a limit returns `429 {"code": "RATE_LIMITED"}` with `Retry-After`.
+Every `/api/*` response carries `X-RateLimit-Limit` and
+`X-RateLimit-Remaining`. The counter uses `request.ip`. Behind a reverse proxy
+all clients share one IP — enable Fastify's `trustProxy` if you need the real
+address from `X-Forwarded-For`; for a single-proxy self-hosted setup this is
+usually unnecessary.
 
-## Настройка сети для Prowlarr и Transmission
+## Networking for Prowlarr and Transmission
 
-Контейнеру filmfind нужно, чтобы адреса из `.env` (`PROWLARR_URL`,
-`TRANSMISSION_URL`) были доступны изнутри контейнера. Два варианта:
+The filmfind container must be able to reach the addresses from `.env`
+(`PROWLARR_URL`, `TRANSMISSION_URL`). Two options:
 
-**Вариант A — общая docker-сеть** (Prowlarr и Transmission тоже контейнеры):
+**Option A — shared Docker network** (Prowlarr and Transmission are containers
+too):
 
 ```bash
-docker network ls      # найдите сеть, в которой живут Prowlarr/Transmission
-                       # (docker inspect <имя-контейнера> | grep -A3 Networks)
-docker network create media   # если сети ещё нет
+docker network ls      # find the network Prowlarr/Transmission live in
+                       # (docker inspect <container> | grep -A3 Networks)
+docker network create media   # if the network does not exist yet
 ```
 
-В `docker-compose.yml` раскомментируйте блок `networks: - media` для сервиса
-и в конце файла, при необходимости поправьте `DOCKER_NETWORK`. Адреса в
-`.env` — по именам контейнеров: `http://prowlarr:9696`, `http://transmission:9091`.
+In `docker-compose.yml` uncomment the `networks: - media` block for the service
+and at the end of the file, adjusting `DOCKER_NETWORK` if needed. Addresses in
+`.env` use container names: `http://prowlarr:9696`,
+`http://transmission:9091`.
 
-**Вариант B — сервисы на хосте** (или в другой сети):
+**Option B — services on the host** (or on another network):
 
-Раскомментируйте `extra_hosts: - "host.docker.internal:host-gateway"`.
-Адреса в `.env`: `http://host.docker.internal:9696` и
-`http://host.docker.internal:9091`. На macOS/Windows работает из коробки,
-на Linux строка `host-gateway` уже добавлена.
+Uncomment `extra_hosts: - "host.docker.internal:host-gateway"`. Addresses in
+`.env`: `http://host.docker.internal:9696` and
+`http://host.docker.internal:9091`. Works out of the box on macOS/Windows;
+on Linux the `host-gateway` entry is already included.
 
-## Локальная разработка
+## Local development
 
-Требуется Node.js 22+ (проверено на Node 25) и npm.
+Requires Node.js 22+ (tested on Node 25) and npm.
 
 ```bash
 npm install
 npm run dev
 ```
 
-- фронтенд (Vite): <http://localhost:5173>, `/api` проксируется на сервер;
+- frontend (Vite): <http://localhost:5173>, `/api` is proxied to the server;
 - API: <http://localhost:8080>;
-- стайлгайд дизайн-системы: <http://localhost:5173/styleguide>.
+- design-system styleguide: <http://localhost:5173/styleguide>.
 
-`npm install` достаточно выполнить один раз: пакеты связываются через
-workspaces. `npm run dev` сам собирает `@filmfind/shared` перед запуском
-сервера, поэтому отдельная команда сборки не нужна.
+`npm install` is a one-time step: packages are linked through workspaces.
+`npm run dev` builds `@filmfind/shared` before starting the server, so no
+separate build command is needed.
 
-Другие команды:
+Other commands:
 
 ```bash
 npm run build      # shared → server → web
-npm test           # vitest: shared и server
+npm test           # vitest: shared and server
 npm run typecheck
-npm run lint       # заглушка: линтер в следующих волнах
 ```
 
-### Отдельный запуск пакетов
+### Running packages separately
 
 ```bash
-npm run build -w @filmfind/shared   # обязательно один раз перед запуском server отдельно
+npm run build -w @filmfind/shared   # required once before running the server alone
 npm run dev -w @filmfind/server
 npm run dev -w @filmfind/web
 ```
 
-## Настройка внешних сервисов
+## Configuring external services
 
-Все переменные и комментарии — в [`.env.example`](./.env.example).
+All variables and comments are in [`.env.example`](./.env.example).
 
 ### TMDB
 
-1. Зарегистрируйтесь на <https://www.themoviedb.org/>.
-2. Откройте Settings → API и получите API Key (v3) или Read Access Token (v4).
-3. Укажите значение в `TMDB_API_KEY`. Токен v4 определяется автоматически по
-   префиксу `eyJ` и отправляется как `Authorization: Bearer`.
+1. Sign up at <https://www.themoviedb.org/>.
+2. Open Settings → API and get an API Key (v3) or a Read Access Token (v4).
+3. Put the value into `TMDB_API_KEY`. A v4 token is detected automatically by
+   the `eyJ` prefix and sent as `Authorization: Bearer`.
 
 ### Prowlarr
 
-1. Откройте Prowlarr → Settings → General.
-2. Скопируйте **API Key** в `PROWLARR_API_KEY`.
-3. В `PROWLARR_URL` укажите базовый адрес, например `http://prowlarr:9696`
-   или `http://host.docker.internal:9696`.
+1. Open Prowlarr → Settings → General.
+2. Copy the **API Key** into `PROWLARR_API_KEY`.
+3. Set `PROWLARR_URL` to the base address, for example
+   `http://prowlarr:9696` or `http://host.docker.internal:9696`.
 
 ### Transmission
 
-Способ 1 — через веб-интерфейс Transmission: Settings → Remote →
-«Allow remote access» (RPC включён по умолчанию на порту 9091).
+Option 1 — through the Transmission web UI: Settings → Remote → "Allow remote
+access" (RPC is enabled by default on port 9091).
 
-Способ 2 — правкой `settings.json` Transmission (затем перезапуск
-контейнера Transmission: `docker restart transmission`):
+Option 2 — by editing Transmission's `settings.json` (then restart the
+Transmission container: `docker restart transmission`):
 
 ```json
 {
   "rpc-enabled": true,
   "rpc-username": "transmission",
-  "rpc-password": "{пароль — Transmission сам заменит на хэш при первом запуске}",
+  "rpc-password": "{password — Transmission replaces it with a hash on first start}",
   "rpc-whitelist-enabled": true,
   "rpc-whitelist": ["127.0.0.1", "172.17.0.*", "172.18.0.*", "172.19.0.*", "172.20.0.*"]
 }
 ```
 
-- `rpc-whitelist` — добавьте подсеть docker-сети, из которой приходит
-  контейнер filmfind: для сети по умолчанию это `172.17.0.*`, для
-  compose-сети — часто `172.18.*`–`172.20.*` (проверьте:
-  `docker network inspect <сеть> | grep Subnet`). Не отключайте whitelist
-  без необходимости.
+- `rpc-whitelist` — add the Docker subnet the filmfind container comes from:
+  `172.17.0.*` for the default network, often `172.18.*`–`172.20.*` for a
+  Compose network (check with
+  `docker network inspect <network> | grep Subnet`). Do not disable the
+  whitelist unless you have to.
 
-Дальше в `.env` FilmFind:
+Then, in FilmFind's `.env`:
 
-1. `TRANSMISSION_URL` — база (`http://host.docker.internal:9091`) или полный
-   RPC-адрес (`.../transmission/rpc`).
-2. `TRANSMISSION_USER` / `TRANSMISSION_PASSWORD` — если задали
+1. `TRANSMISSION_URL` — base (`http://host.docker.internal:9091`) or the full
+   RPC address (`.../transmission/rpc`).
+2. `TRANSMISSION_USER` / `TRANSMISSION_PASSWORD` — if you set
    `rpc-username` / `rpc-password`.
-3. Необязательно `TRANSMISSION_DOWNLOAD_DIR` — каталог загрузок.
-4. Необязательно `TRANSMISSION_DOWNLOAD_DIR_MOVIE` / `_TV` / `_ANIMATION` —
-   разные каталоги по категории. Мультфильмы идут в `_ANIMATION`, остальные
-   фильмы в `_MOVIE`, сериалы (включая аниме-сериалы) в `_TV`; незаданное
-   значение падает на `TRANSMISSION_DOWNLOAD_DIR`. Путь указывается внутри
-   контейнера Transmission, каталог должен существовать и быть доступен на
-   запись пользователю из `PUID`/`PGID`.
+3. Optionally `TRANSMISSION_DOWNLOAD_DIR` — download directory.
+4. Optionally `TRANSMISSION_DOWNLOAD_DIR_MOVIE` / `_TV` / `_ANIMATION` — a
+   separate directory per category. Animation goes to `_ANIMATION`, other
+   movies to `_MOVIE`, series (including anime series) to `_TV`; an unset
+   value falls back to `TRANSMISSION_DOWNLOAD_DIR`. The path is inside the
+   Transmission container and must exist and be writable by the user from
+   `PUID`/`PGID`.
 
-## Безопасность
+## Security
 
-> **Не публикуйте FilmFind в интернет без VPN или reverse proxy с HTTPS и
-> аутентификацией.** Приложение управляет загрузками и обращается к вашим
-> приватным сервисам, а ключи Prowlarr дают полный доступ к вашим
-> индексаторам и могут исчерпать лимиты или привлечь блокировки. Держите
-> FilmFind в локальной сети, за VPN (Tailscale/WireGuard) или за reverse
-> proxy (Caddy/nginx/Traefik) с TLS и Basic Auth/OIDC.
+> **Do not expose FilmFind to the internet without a VPN or a reverse proxy
+> with HTTPS and authentication.** The app manages downloads and talks to your
+> private services, and Prowlarr API keys grant full access to your indexers —
+> they can exhaust rate limits or get you blocked. Keep FilmFind on your local
+> network, behind a VPN (Tailscale/WireGuard), or behind a reverse proxy
+> (Caddy/nginx/Traefik) with TLS and Basic Auth/OIDC.
 
-Что уже встроено на уровне сервера:
+What the server already does:
 
-- **Токен доступа** — `APP_ACCESS_TOKEN` закрывает все `/api/*` Bearer-токеном
-  (см. раздел выше); сравнение constant-time, токен не попадает в логи.
-- **Rate limit** — 60/мин на поиск и раздачи, 20/мин на добавление в
-  Transmission, 300/мин на остальное; перебор токена тоже ограничен.
-- **CSP и заголовки** — `default-src 'self'`, `object-src 'none'`,
+- **Access token** — `APP_ACCESS_TOKEN` protects every `/api/*` with a bearer
+  token (see above); comparison is constant-time and the token never reaches
+  the logs.
+- **Rate limiting** — 60/min for search and releases, 20/min for adding to
+  Transmission, 300/min for the rest; token brute force is limited too.
+- **CSP and headers** — `default-src 'self'`, `object-src 'none'`,
   `base-uri 'none'`, `frame-ancestors 'none'`, `Permissions-Policy`
-  (геолокация/микрофон/камера запрещены), `Cross-Origin-Opener-Policy:
-  same-origin`, `X-Content-Type-Options: nosniff`. HSTS сознательно
-  не ставится: приложение работает по HTTP в локальной сети.
-- **Кэш** — ответы `/api/*` отдаются с `Cache-Control: no-store` (кроме
-  прокси постеров — там публичный кэш на день), статика раздаётся с
-  длинным кэшем по хэшированным именам Vite.
-- **Ошибки** — в прод-режиме (NODE_ENV=production) ответы 5xx не раскрывают
-  внутренние детали; секреты хранятся только в `.env` (исключён из git);
-  логгер Fastify маскирует заголовки авторизации, ключи и пароли.
+  (geolocation/microphone/camera denied), `Cross-Origin-Opener-Policy:
+  same-origin`, `X-Content-Type-Options: nosniff`. HSTS is deliberately not
+  set: the app runs over HTTP on a local network.
+- **Caching** — `/api/*` responses use `Cache-Control: no-store` (except the
+  poster proxy, which has a one-day public cache); static assets are served
+  with long-lived caching keyed by Vite's hashed filenames.
+- **Errors** — in production (`NODE_ENV=production`) 5xx responses do not leak
+  internals; secrets live only in `.env` (excluded from git); the Fastify
+  logger redacts authorization headers, keys and passwords.
 
-## Ограничения
+## Limitations
 
-- **Нет базы данных.** Индекс раздач и кэши ответов TMDB/Prowlarr живут в
-  памяти процесса; после перезапуска контейнера всё обнуляется.
-- **Кэш в памяти** — LRU с ограничением по числу записей и TTL; не шарится
-  между репликами (приложение рассчитано на один инстанс).
-- **История поиска** хранится в `localStorage` браузера и не синхронизируется
-  между устройствами.
-- **Офлайн доступна только оболочка**: без сети к TMDB/Prowlarr/Transmission
-  интерфейс откроется, но поиск и раздачи работать не будут.
-- **За общим reverse proxy счётчик rate limit считает всех как один IP**
-  до включения `trustProxy` в Fastify.
+- **No database.** The release index and TMDB/Prowlarr response caches live in
+  process memory and are lost on container restart.
+- **In-memory cache** — an LRU with an entry cap and TTL; not shared between
+  replicas (the app targets a single instance).
+- **Search history** is stored in browser `localStorage` and is not synced
+  across devices.
+- **Only the shell works offline**: without network access to
+  TMDB/Prowlarr/Transmission the UI opens, but search and releases do not
+  work.
+- **Behind a shared reverse proxy the rate limiter treats every client as one
+  IP** until `trustProxy` is enabled in Fastify.
 
-## Статус реализации
+## Legal
 
-- [x] **Этап 0** — монорепо, контракт `@filmfind/shared`, сервер с `/api/health`,
-      дизайн-система, стайлгайд, Docker.
-- [x] **Этап 1** — клиент TMDB: поиск, карточка тайтла, прокси постеров.
-- [x] **Этап 2** — клиент Prowlarr, парсер качества релизов (серверная часть).
-- [x] **Этап 3** — клиент Transmission, отправка раздачи, список загрузок (сервер).
-- [x] **Этап 4** — карточка тайтла, экран раздач, экран загрузок.
-- [x] **Этап 5** — токен доступа, rate limit, заголовки безопасности, PWA, README.
+FilmFind does not host, index, store or distribute any content. It is a user
+interface: it queries TMDB for public metadata, asks your own Prowlarr
+instance for releases, and hands the link you pick to your own Transmission
+client. No torrent files, magnets or media are bundled with or served by this
+project.
 
-Приёмка: `npm run build` и `npm test` зелёные, Docker-образ собирается и
-запускается не от root, Lighthouse даёт 100 по Accessibility и Best Practices.
-Живая проверка против реальных Prowlarr/Transmission/TMDB выполняется после
-заполнения `.env` — до этого все клиенты проверены на моках.
+The project is not affiliated with TMDB, Prowlarr, Transmission or any
+tracker. You are responsible for how you use the app, for complying with the
+laws of your jurisdiction, and for the terms of the services you connect.
 
-## Структура
+Metadata and images are provided by TMDB. This product uses the TMDB API but
+is not endorsed or certified by TMDB.
+
+## Implementation status
+
+- [x] **Stage 0** — monorepo, `@filmfind/shared` contract, server with
+      `/api/health`, design system, styleguide, Docker.
+- [x] **Stage 1** — TMDB client: search, title page, poster proxy.
+- [x] **Stage 2** — Prowlarr client, release quality parser (server side).
+- [x] **Stage 3** — Transmission client, sending a release, download list
+      (server side).
+- [x] **Stage 4** — title page, releases screen, downloads screen.
+- [x] **Stage 5** — access token, rate limiting, security headers, PWA, docs.
+
+Acceptance: `npm run build` and `npm test` are green, the Docker image builds
+and runs as non-root, Lighthouse scores 100 for Accessibility and Best
+Practices. Live verification against real Prowlarr/Transmission/TMDB happens
+after `.env` is filled in — until then every client is covered by mocks.
+
+## Structure
 
 ```
 apps/
-  server/        Fastify API + раздача статики в prod
-  web/           React + Vite + Tailwind, дизайн-система в src/ui
+  server/        Fastify API + static serving in prod
+  web/           React + Vite + Tailwind, design system in src/ui
 packages/
-  shared/        DTO-контракт, форматирование, парсер качества
+  shared/        DTO contract, formatting, quality parser
 Dockerfile
 docker-compose.yml
 ```
 
-Технические решения и отклонения описаны в [`NOTES.md`](./NOTES.md).
+Technical decisions and deviations are documented in [`NOTES.md`](./NOTES.md).

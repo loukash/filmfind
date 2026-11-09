@@ -2,6 +2,8 @@
   "name": "filmfind",
   "version": "0.1.0",
   "private": true,
+  "description": "Self-hosted PWA to find releases through Prowlarr and send them to Transmission",
+  "license": "MIT",
   "type": "module",
   "workspaces": [
     "apps/*",
